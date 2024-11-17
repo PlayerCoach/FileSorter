@@ -46,30 +46,42 @@ const int* getRecord()
 
 Record::operator<(const Record &record) const
 {
+    bool isSetMaxA = false;
+    bool isSetMaxB = false;
     int maxA = 0;
     int maxB = 0;
-    bool initialMaxSet = false;
-    std::vector<int> bCopy(std::begin(record.getSeries()), std::end(record.getSeries()));
-    for(int i=0; i<RECORD_SERIES_LENGTH; i++)
+    std::set<int> uniqueInA(this->getSeries(), this->getSeries() + RECORD_SERIES_LENGTH);
+    std::set<int> uniqueInB(record.getSeries(), record.getSeries() + RECORD_SERIES_LENGTH);
+
+    for(int num: uniqueInA)
     {
-        for(int j=0; j<RECORD_SERIES_LENGTH; j++)
+        if(uniqueInB.find(num) == uniqueInB.end())
         {
-            if(this[i] == record[j])
+            if(!isSetMaxA || maxA < num)
             {
-                bCopy.erase(std::remove(bCopy.begin(), bCopy.end(), num), bCopy.end());
-                break;
-            }
-            if(this[i] > maxA || initialMaxSet == false)
-            {
-                initialMaxSet = true;
-                maxA = this[i];
+                maxA = num;
+                isSetMaxA = true;
             }
         }
     }
-    maxB = std::max_element(bCopy.begin(), bCopy.end());
-    if(maxA < maxB)
-        return true;
-    return false;
+
+    for(int num:uniqueInB)
+    {
+        if(uniqueInA.find(num) == uniqueInA.end())
+        {
+            if(!isSetMaxB || maxB < num)
+            {
+                maxB = num;
+                isSetMaxB = true;
+            }
+        }
+    }
+    if (!isSetMaxA || !isSetMaxB)
+        return false;
+
+    return maxA < maxB;
+
+
 }
 
 {
