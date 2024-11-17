@@ -10,4 +10,5 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/main)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/fileHandler)
 
 target_link_libraries(FileSorter RecordLib)
+target_link_libraries(FileSorter FileHandlerLib)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/const)

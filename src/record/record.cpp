@@ -127,6 +127,8 @@ std::istream &operator>>(std::istream &is, Record &record)
     {
         series.insert(num);
     }
+    record.series.clear();
+    record.series = series;
     return is;
 }
 

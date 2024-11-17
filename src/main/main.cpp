@@ -1,11 +1,8 @@
 #include <iostream>
-#include "record.h"
-#include "const.h"
+#include "mainController.h"
 
 int main() {
-    //Record record("random");
-    //std::cout << TEST << std::endl;
-    //std::cout << record << std::endl;
+    mainController mainController;
 
     return 0;
 }
