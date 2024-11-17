@@ -3,23 +3,24 @@
 #include <cstdlib>
 #include <time.h>
 #include <set>
+#include <algorithm>
+#include <iterator>
+#include <vector>
 #include <climits>
 #include <random>
 class Record
 {
 private:
     //attributes
-    int series[RECORD_SERIES_LENGTH];
+    std::set<int> series;
     
     //methods
     int getMaxUnique(const Record &other) const;
-    const int* getSeries() const;
 
 public:
     Record();
-    Record(int series[RECORD_SERIES_LENGTH]);
-    const int& operator[](int index) const;
-    int& operator[](int index);
+    Record(std::vector<int> series);
+    const std::set<int>& getSeries() const;
     Record& operator = (const Record &record);
     bool operator<(const Record &record) const;
     bool operator>(const Record &record) const;

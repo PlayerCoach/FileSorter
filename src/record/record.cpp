@@ -4,15 +4,11 @@
 
 int Record::getMaxUnique(const Record &other) const
 {
-    std::set<int> uniqueInThis(this->getSeries(), this->getSeries() + RECORD_SERIES_LENGTH);
-    std::set<int> uniqueInOther(other.getSeries(), other.getSeries() + RECORD_SERIES_LENGTH);
-
     int maxUnique = 0;
     bool isSetMax = false;
-
-    for (int num : uniqueInThis)
+    for (int num : this->series)
     {
-        if (uniqueInOther.find(num) == uniqueInOther.end())
+        if (other.getSeries().find(num) == other.getSeries().end())
         {
             if (!isSetMax || num > maxUnique)
             {
@@ -25,10 +21,6 @@ int Record::getMaxUnique(const Record &other) const
     return isSetMax ? maxUnique : INT_MIN; 
 }
 
-const int* Record::getSeries() const
-{
-    return this->series;
-}
 
 //public 
 
@@ -36,42 +28,37 @@ Record::Record()
 {
   
     std::random_device rd;                     
-    std::mt19937 gen(rd());                     
+    std::mt19937 gen(rd());           
+    std::uniform_int_distribution<int> distOne(1, MAX_RECORD_COUNT); 
+    int count = distOne(gen);         
     std::uniform_int_distribution<int> dist(MIN_NUMBER_VALUE, MAX_NUMBER_VALUE); 
 
-    for(int i = 0; i < RECORD_SERIES_LENGTH; i++)
+    for(int i = 0; i < count; i++)
     {
-        this->series[i] = dist(gen);
+        this->series.insert(dist(gen));
     }
     
 }
 
-Record::Record(int series[RECORD_SERIES_LENGTH])
+Record::Record(std::vector<int> series)
 {
-    for (int i = 0; i < RECORD_SERIES_LENGTH; i++)
-    {
-        this->series[i] = series[i];
+    for (int element : series) {
+        if (this->series.size() >= MAX_RECORD_COUNT) {
+            break; 
+        }
+        this->series.insert(element);
     }
+    
 }
 
-
-
-const int& Record::operator[](int index) const
+const std::set<int>& Record::getSeries() const
 {
-    return this->series[index];
-}
-
-int& Record::operator[](int index)
-{
-    return this->series[index];
+    return this->series;
 }
 
 Record& Record::operator=(const Record &record)
 {
-    for (int i = 0; i < RECORD_SERIES_LENGTH; i++)
-    {
-        this->series[i] = record.series[i];
-    }
+    this->series = record.series;
     return *this;
 }
 
@@ -105,12 +92,7 @@ bool Record::operator>(const Record &record) const
 
 bool Record::operator==(const Record &record) const
 {
-    for (int i = 0; i < RECORD_SERIES_LENGTH; i++)
-    {
-        if (this->series[i] != record.series[i])
-            return false;
-    }
-    return true;
+    return this->series == record.series;
 }
 
 bool Record::operator!=(const Record &record) const
@@ -130,18 +112,20 @@ bool Record::operator>=(const Record &record) const
 
 std::ostream &operator<<(std::ostream &os, const Record &record)
 {
-    for (int i = 0; i < RECORD_SERIES_LENGTH; i++)
+    for (int num : record.series)
     {
-        os << record.series[i] << " ";
+        os << num << " ";
     }
     return os;
 }
 
 std::istream &operator>>(std::istream &is, Record &record)
 {
-    for (int i = 0; i < RECORD_SERIES_LENGTH; i++)
+    std::set<int> series;
+    int num;
+    while (is >> num)
     {
-        is >> record.series[i];
+        series.insert(num);
     }
     return is;
 }
