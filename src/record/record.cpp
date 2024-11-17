@@ -1,18 +1,52 @@
 #include "record.h"
 
-Record::Record()
+//private
+
+int Record::getMaxUnique(const Record &other) const
 {
-    for (int i = 0; i < RECORD_SERIES_LENGTH; i++)
+    std::set<int> uniqueInThis(this->getSeries(), this->getSeries() + RECORD_SERIES_LENGTH);
+    std::set<int> uniqueInOther(other.getSeries(), other.getSeries() + RECORD_SERIES_LENGTH);
+
+    int maxUnique = 0;
+    bool isSetMax = false;
+
+    for (int num : uniqueInThis)
     {
-        std::srand(time(NULL));
-        for(int i = 0; i < RECORD_SERIES_LENGTH; i++)
+        if (uniqueInOther.find(num) == uniqueInOther.end())
         {
-            this->series[i] = MIN_NUMBER_VALUE + std::rand() % (MAX_NUMBER_VALUE - MIN_NUMBER_VALUE + 1);
+            if (!isSetMax || num > maxUnique)
+            {
+                maxUnique = num;
+                isSetMax = true;
+            }
         }
     }
+
+    return isSetMax ? maxUnique : INT_MIN; 
 }
 
-Record::~Record(int series[RECORD_SERIES_LENGTH])
+const int* Record::getSeries() const
+{
+    return this->series;
+}
+
+//public 
+
+Record::Record()
+{
+  
+    std::random_device rd;                     
+    std::mt19937 gen(rd());                     
+    std::uniform_int_distribution<int> dist(MIN_NUMBER_VALUE, MAX_NUMBER_VALUE); 
+
+    for(int i = 0; i < RECORD_SERIES_LENGTH; i++)
+    {
+        this->series[i] = dist(gen);
+    }
+    
+}
+
+Record::Record(int series[RECORD_SERIES_LENGTH])
 {
     for (int i = 0; i < RECORD_SERIES_LENGTH; i++)
     {
@@ -20,17 +54,19 @@ Record::~Record(int series[RECORD_SERIES_LENGTH])
     }
 }
 
-const Record &Record::operator[](int index) const
+
+
+const int& Record::operator[](int index) const
 {
     return this->series[index];
 }
 
-Record &Record::operator[](int index)
+int& Record::operator[](int index)
 {
     return this->series[index];
 }
 
-Record &Record::operator=(const Record &record)
+Record& Record::operator=(const Record &record)
 {
     for (int i = 0; i < RECORD_SERIES_LENGTH; i++)
     {
@@ -39,44 +75,14 @@ Record &Record::operator=(const Record &record)
     return *this;
 }
 
-const int* getRecord()
+bool Record::operator<(const Record &record) const
 {
-    return this->series;
-}
+    int maxA = this->getMaxUnique(record);
+    int maxB = record.getMaxUnique(*this);
 
-Record::operator<(const Record &record) const
-{
-    bool isSetMaxA = false;
-    bool isSetMaxB = false;
-    int maxA = 0;
-    int maxB = 0;
-    std::set<int> uniqueInA(this->getSeries(), this->getSeries() + RECORD_SERIES_LENGTH);
-    std::set<int> uniqueInB(record.getSeries(), record.getSeries() + RECORD_SERIES_LENGTH);
-
-    for(int num: uniqueInA)
-    {
-        if(uniqueInB.find(num) == uniqueInB.end())
-        {
-            if(!isSetMaxA || maxA < num)
-            {
-                maxA = num;
-                isSetMaxA = true;
-            }
-        }
-    }
-
-    for(int num:uniqueInB)
-    {
-        if(uniqueInA.find(num) == uniqueInA.end())
-        {
-            if(!isSetMaxB || maxB < num)
-            {
-                maxB = num;
-                isSetMaxB = true;
-            }
-        }
-    }
-    if (!isSetMaxA || !isSetMaxB)
+    if (maxA == INT_MIN && maxB != INT_MIN)
+        return true;
+    if (maxB == INT_MIN)
         return false;
 
     return maxA < maxB;
@@ -84,6 +90,60 @@ Record::operator<(const Record &record) const
 
 }
 
+bool Record::operator>(const Record &record) const
 {
-    std::cout << "Record::~Record()" << std::endl;
+    int maxA = this->getMaxUnique(record);
+    int maxB = record.getMaxUnique(*this);
+
+    if (maxB == INT_MIN && maxA != INT_MIN)
+        return true;
+    if (maxA == INT_MIN)
+        return false;
+
+    return maxA > maxB;
 }
+
+bool Record::operator==(const Record &record) const
+{
+    for (int i = 0; i < RECORD_SERIES_LENGTH; i++)
+    {
+        if (this->series[i] != record.series[i])
+            return false;
+    }
+    return true;
+}
+
+bool Record::operator!=(const Record &record) const
+{
+    return !(*this == record);
+}
+
+bool Record::operator<=(const Record &record) const
+{
+    return *this < record || *this == record;
+}
+
+bool Record::operator>=(const Record &record) const
+{
+    return *this > record || *this == record;
+}
+
+std::ostream &operator<<(std::ostream &os, const Record &record)
+{
+    for (int i = 0; i < RECORD_SERIES_LENGTH; i++)
+    {
+        os << record.series[i] << " ";
+    }
+    return os;
+}
+
+std::istream &operator>>(std::istream &is, Record &record)
+{
+    for (int i = 0; i < RECORD_SERIES_LENGTH; i++)
+    {
+        is >> record.series[i];
+    }
+    return is;
+}
+
+Record::~Record(){}

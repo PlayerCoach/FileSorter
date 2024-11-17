@@ -3,8 +3,9 @@
 #include "const.h"
 
 int main() {
-    Record record;
-    std::cout << TEST << std::endl;
+    //Record record("random");
+    //std::cout << TEST << std::endl;
+    //std::cout << record << std::endl;
 
     return 0;
 }
