@@ -11,5 +11,5 @@ public:
     fileHandler();
     void start(std::string inputFileName, std::string outputFileName);
     void readFromFile(std::string fileName);
-    void writeToFile(std::string fileName, std::string content);
+    void writeRecordToFile(std::string fileName, const Record& content);
 };
