@@ -16,4 +16,5 @@ public:
     Record readRecordFromFile(std::string fileName);
     void writeRecordToFile(std::string fileName, const Record& content);
     void clearFile(std::string fileName);
+
 };

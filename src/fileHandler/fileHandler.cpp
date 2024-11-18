@@ -23,7 +23,7 @@ void fileHandler::writeRecordToFile(std::string fileName, const Record& record) 
     outputHandler.writeRecordToFile(fileName, record);
 }
 
-void clearFile(std::string fileName) {
+void fileHandler::clearFile(std::string fileName) {
     std::ofstream file;
     file.open(fileName, std::ios::trunc);
     file.close();

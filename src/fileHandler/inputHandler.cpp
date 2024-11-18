@@ -9,7 +9,6 @@ Record inputHandler::binaryToRecord(char* recordBuffer, const int& size)
     {
         binaryString = std::string(recordBuffer + i * 32, 32);
         number = stoi(binaryString, 0, 2);
-        std::cout<<number<<std::endl;
         record.push_back(number);
     }
     return Record(record);
@@ -35,8 +34,6 @@ Record inputHandler::readRecordFromFile(std::string fileName)
     recordBuffer[size * 32] = '\0';
     file.read(recordBuffer, size * 32);
     fileIndex += 32 + size * 32;
-    std::cout<< size << std::endl;
-    std::cout<< recordBuffer << std::endl;
     Record binRecord = binaryToRecord(recordBuffer, size);
     delete[] recordBuffer;
     file.close();

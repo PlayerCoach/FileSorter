@@ -9,7 +9,7 @@ mainController::mainController() {
     fileHandler.writeRecordToFile(filePath, record);
     Record record2 = fileHandler.readRecordFromFile(filePath);
     std::cout<<record2<<std::endl;
-    //fileHandler.clearFile(filePath);
+    fileHandler.clearFile(filePath);
 
 
 
