@@ -1,3 +1,4 @@
+#pragma once
 #include <iostream>
 #include "const.h"
 #include <cstdlib>
@@ -14,7 +15,7 @@ private:
     //attributes
     std::set<int> series;
     
-    //methods
+    //methods 
     int getMaxUnique(const Record &other) const;
 
 public:
@@ -30,5 +31,7 @@ public:
     bool operator>=(const Record &record) const;
     friend std::ostream &operator << (std::ostream &os, const Record &record);
     friend std::istream &operator >> (std::istream &is, Record &record);
+    void insert(int value);
+    void remove(int value);
     ~Record();
 };

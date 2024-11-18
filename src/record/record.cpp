@@ -132,4 +132,14 @@ std::istream &operator>>(std::istream &is, Record &record)
     return is;
 }
 
+void Record::insert(int value)
+{
+    this->series.insert(value);
+}
+
+void Record::remove(int value)
+{
+    this->series.erase(value);
+}
+
 Record::~Record(){}

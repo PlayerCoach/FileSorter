@@ -3,15 +3,20 @@
 #include <fstream>
 #include <string>
 #include "const.h"
+#include "record.h"
+#include <bit>
+#include <bitset>
+#include <stdlib.h>
 
 class inputHandler
 {
 private:
     int inputBuffer[BUFFER_SIZE];
-    std::string binaryToRecord();
+    Record binaryToRecord(char* recordBuffer, const int& size);
+    int fileIndex = 0;
 public:
     inputHandler();
-    void readFromFile(std::string fileName);
+    Record readRecordFromFile(std::string fileName);
 };
 
 

@@ -1,5 +1,8 @@
 #include "inputHandler.h"
 #include "outputHandler.h"
+#include "const.h"
+#include "record.h"
+#include <filesystem>
 
 class fileHandler
 {
@@ -10,6 +13,7 @@ private:
 public:
     fileHandler();
     void start(std::string inputFileName, std::string outputFileName);
-    void readFromFile(std::string fileName);
+    Record readRecordFromFile(std::string fileName);
     void writeRecordToFile(std::string fileName, const Record& content);
+    void clearFile(std::string fileName);
 };
