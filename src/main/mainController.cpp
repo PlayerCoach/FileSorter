@@ -5,11 +5,11 @@ mainController::mainController() {
     Record record;
     std::cout<<record.getSeries().size()<<std::endl;
     std::cout<<record<<std::endl;
-    std::string filePath = OUTPUT_FOLDER + std::string("\\test.txt");
+    std::string filePath = OUTPUT_FOLDER + std::string("\\test.bin");
     fileHandler.writeRecordToFile(filePath, record);
     Record record2 = fileHandler.readRecordFromFile(filePath);
     std::cout<<record2<<std::endl;
-    fileHandler.clearFile(filePath);
+    //fileHandler.clearFile(filePath);
 
 
 

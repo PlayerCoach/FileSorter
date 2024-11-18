@@ -1,24 +1,11 @@
 #include "outputHandler.h"
 
-
-std::string outputHandler::recordToBinary(const Record& record) 
-{   
-    std::bitset<32> binary(record.getSeries().size());
-    std::string binaryString = binary.to_string();
-
-    for (int number : record.getSeries())
-    {
-        std::bitset<32> binary(number);
-        binaryString += binary.to_string();
-    }
-    return binaryString;
-}
 outputHandler::outputHandler() {}
 void outputHandler::writeBlockToFile(std::string fileName, std::string content) {}
 void outputHandler::writeRecordToFile(std::string fileName, const Record& record)
 {
     std::ofstream file;
-    file.open(fileName, std::ios::app | std::ios::binary);
+    file.open(fileName, std::ios::binary);
 
     if(!file.is_open())
     {
@@ -26,6 +13,11 @@ void outputHandler::writeRecordToFile(std::string fileName, const Record& record
         return;
     }
 
-    file << recordToBinary(record);
+    int32_t size = record.getSeries().size();
+    file.write(reinterpret_cast<char*>(&size), sizeof(size));
+    for(int number : record.getSeries())
+    {
+        file.write(reinterpret_cast<char*>(&number), sizeof(number));
+    }
     file.close();
 }

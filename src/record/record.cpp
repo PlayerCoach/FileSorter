@@ -51,6 +51,7 @@ Record::Record(std::vector<int> series)
     
 }
 
+
 const std::set<int>& Record::getSeries() const
 {
     return this->series;

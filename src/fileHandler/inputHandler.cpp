@@ -23,20 +23,20 @@ Record inputHandler::readRecordFromFile(std::string fileName)
         std::cerr << "Error: Could not open file " << fileName << std::endl;
         exit(1);
     }
-    //move to the curren index
-    file.seekg(fileIndex);
-    std::string bitSize(32, '0');
-    file.read(&bitSize[0], 32);
-    std::cout<<bitSize<<std::endl;
-    int size = stoi(bitSize, 0, 2); 
 
-    char *recordBuffer = new char[size * 32 + 1];
-    recordBuffer[size * 32] = '\0';
-    file.read(recordBuffer, size * 32);
-    fileIndex += 32 + size * 32;
-    Record binRecord = binaryToRecord(recordBuffer, size);
-    delete[] recordBuffer;
-    file.close();
-    return binRecord;
+    file.seekg(fileIndex);
+    
+    int32_t size;
+    file.read(reinterpret_cast<char*>(&size), sizeof(size));
+
+    std::vector <int> mainBuffer;
+    int32_t number;
+    for(int i = 0; i < size; i++)
+    {
+        file.read(reinterpret_cast<char*>(&number), sizeof(number));
+        mainBuffer.push_back(number);
+    }
+
+    return Record(mainBuffer);
 
 }
