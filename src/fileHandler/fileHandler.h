@@ -13,8 +13,13 @@ private:
 public:
     fileHandler();
     void start(std::string inputFileName, std::string outputFileName);
-    Record readRecordFromFile(std::string fileName);
+    Record* readRecordFromFile(std::string fileName);
     void writeRecordToFile(std::string fileName, const Record& content);
     void clearFile(std::string fileName);
+    void openFileForInput(std::string fileName);   
+    void closeFileForInput();
+    void openFileForOutput(std::string fileName);
+    void closeFileForOutput();
+    void readReinterpretWrite(std::string inputFileName, std::string outputFileName);
 
 };

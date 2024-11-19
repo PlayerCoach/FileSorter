@@ -16,33 +16,47 @@ Record inputHandler::binaryToRecord(char* recordBuffer, const int& size)
 inputHandler::inputHandler() {}
 Record* inputHandler::readRecordFromFile(std::string fileName) 
 {
-    std::ifstream file;
-    file.open(fileName, std::ios::in | std::ios::binary);
-    if (!file.is_open())
+    
+    if(!this->file.is_open())
     {
-        std::cerr << "Error: Could not open file " << fileName << std::endl;
-        exit(1);
+        std::cerr << "Error: File not open" << std::endl;
+        return nullptr;
     }
 
-    file.seekg(fileIndex);
+    this->file.seekg(fileIndex);
     //check for end of file
-    if (file.eof())
+    if (this->file.eof())
     {
         std::cerr << "Error: End of file reached" << std::endl;
-        exit(1);
+        return nullptr;
     }
     
     int32_t size;
-    file.read(reinterpret_cast<char*>(&size), sizeof(size));
+    this->file.read(reinterpret_cast<char*>(&size), sizeof(size));
 
     std::vector <int> mainBuffer;
     int32_t number;
     for(int i = 0; i < size; i++)
     {
-        file.read(reinterpret_cast<char*>(&number), sizeof(number));
+        this->file.read(reinterpret_cast<char*>(&number), sizeof(number));
         mainBuffer.push_back(number);
     }
 
-    return Record(mainBuffer);
+    return &Record(mainBuffer);
 
+}
+
+void inputHandler::openFile(std::string fileName)
+{
+    this->file.open(fileName, std::ios::in | std::ios::binary);
+    if (!file.is_open())
+    {
+        std::cerr << "Error: Could not open file " << fileName << std::endl;
+        exit(1);
+    }
+}
+
+void inputHandler::closeFile()
+{
+    this->file.close();
 }

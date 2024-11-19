@@ -3,7 +3,6 @@
 mainController::mainController() 
 { 
     this->filePath  = OUTPUT_FOLDER + "\\output.bin";
-    this->fileHandler = fileHandler; 
     fileHandler.clearFile(filePath);
     printMenu();
     bool running = true;
@@ -67,11 +66,15 @@ bool mainController::interpretUserInput(std::vector<std::string> tokens)
        {
         int numberOfRecords = stoi(tokens[1]);
         std::cout<< "Adding " << numberOfRecords << " records to the file" << std::endl;
+        this->fileHandler.openFileForInput(filePath);
         for (int i = 0; i < numberOfRecords; i++)
         {
             Record record;
             fileHandler.writeRecordToFile(filePath, record);
         }
+        this->fileHandler.closeFileForInput();
+
+        this->fileHandler.readReinterpretWrite(filePath, "out\\test.bin");
        }
        catch(const std::exception& e)
        {
