@@ -5,7 +5,7 @@ void outputHandler::writeBlockToFile(std::string fileName, std::string content) 
 void outputHandler::writeRecordToFile(std::string fileName, const Record& record)
 {
     std::ofstream file;
-    file.open(fileName, std::ios::binary);
+    file.open(fileName, std::ios::app | std::ios::binary );
 
     if(!file.is_open())
     {

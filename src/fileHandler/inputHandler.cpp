@@ -14,7 +14,7 @@ Record inputHandler::binaryToRecord(char* recordBuffer, const int& size)
     return Record(record);
 }
 inputHandler::inputHandler() {}
-Record inputHandler::readRecordFromFile(std::string fileName) 
+Record* inputHandler::readRecordFromFile(std::string fileName) 
 {
     std::ifstream file;
     file.open(fileName, std::ios::in | std::ios::binary);
@@ -25,6 +25,12 @@ Record inputHandler::readRecordFromFile(std::string fileName)
     }
 
     file.seekg(fileIndex);
+    //check for end of file
+    if (file.eof())
+    {
+        std::cerr << "Error: End of file reached" << std::endl;
+        exit(1);
+    }
     
     int32_t size;
     file.read(reinterpret_cast<char*>(&size), sizeof(size));

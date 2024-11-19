@@ -1,6 +1,3 @@
-
-
-
 # creates a library from the record class
 add_library(RecordLib record.cpp)
 # gives access to the header files in the include directory

@@ -3,10 +3,9 @@
 fileHandler::fileHandler() 
 {
     //create folder
-    const char* dir = OUTPUT_FOLDER;
-    if (!std::filesystem::exists(dir))
+    if (!std::filesystem::exists(OUTPUT_FOLDER))
     {
-        std::filesystem::create_directory(dir);
+        std::filesystem::create_directory(OUTPUT_FOLDER);
         std::cout << "Output folder created" << std::endl;
     }
     
