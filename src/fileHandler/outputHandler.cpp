@@ -11,7 +11,6 @@ void outputHandler::writeRecordToFile(std::string fileName, const Record& record
     {
         this->file.write(reinterpret_cast<char*>(&number), sizeof(number));
     }
-    this->file.close();
 }
 
 void outputHandler::openFile(std::string fileName)

@@ -3,6 +3,10 @@
 #include "const.h"
 #include "record.h"
 #include <filesystem>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <optional>
 
 class fileHandler
 {
@@ -13,7 +17,7 @@ private:
 public:
     fileHandler();
     void start(std::string inputFileName, std::string outputFileName);
-    Record* readRecordFromFile(std::string fileName);
+    std::optional<Record> readRecordFromFile(std::string fileName);
     void writeRecordToFile(std::string fileName, const Record& content);
     void clearFile(std::string fileName);
     void openFileForInput(std::string fileName);   

@@ -4,6 +4,7 @@ mainController::mainController()
 { 
     this->filePath  = OUTPUT_FOLDER + "\\output.bin";
     fileHandler.clearFile(filePath);
+    fileHandler.clearFile("out\\test.bin");
     printMenu();
     bool running = true;
     while(running)
@@ -59,20 +60,24 @@ bool mainController::interpretUserInput(std::vector<std::string> tokens)
     if (tokens.size() == 0)
     {
         std::cout << "Invalid input" << std::endl;
+        return true;
     }
     else if (tokens[0] == ADD_CMD)
     {
        try
        {
         int numberOfRecords = stoi(tokens[1]);
+        std::cout<<numberOfRecords<<std::endl;
         std::cout<< "Adding " << numberOfRecords << " records to the file" << std::endl;
-        this->fileHandler.openFileForInput(filePath);
+        this->fileHandler.openFileForOutput(filePath);
         for (int i = 0; i < numberOfRecords; i++)
         {
             Record record;
-            fileHandler.writeRecordToFile(filePath, record);
+            std::cout<< record << std::endl;
+            this->fileHandler.writeRecordToFile(filePath, record);
         }
-        this->fileHandler.closeFileForInput();
+        this->fileHandler.closeFileForOutput();
+        std::cout << "Records added" << std::endl;
 
         this->fileHandler.readReinterpretWrite(filePath, "out\\test.bin");
        }

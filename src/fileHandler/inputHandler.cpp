@@ -14,25 +14,25 @@ Record inputHandler::binaryToRecord(char* recordBuffer, const int& size)
     return Record(record);
 }
 inputHandler::inputHandler() {}
-Record* inputHandler::readRecordFromFile(std::string fileName) 
+std::optional<Record> inputHandler::readRecordFromFile(std::string fileName) 
 {
     
     if(!this->file.is_open())
     {
         std::cerr << "Error: File not open" << std::endl;
-        return nullptr;
+        return std::nullopt;
     }
 
     this->file.seekg(fileIndex);
-    //check for end of file
-    if (this->file.eof())
-    {
-        std::cerr << "Error: End of file reached" << std::endl;
-        return nullptr;
-    }
-    
+ 
     int32_t size;
     this->file.read(reinterpret_cast<char*>(&size), sizeof(size));
+
+    if (this->file.eof() || this->file.fail())
+    {
+        std::cout<<"EOF or read failure"<<std::endl;
+        return std::nullopt; // EOF or read failure
+    }
 
     std::vector <int> mainBuffer;
     int32_t number;
@@ -41,8 +41,14 @@ Record* inputHandler::readRecordFromFile(std::string fileName)
         this->file.read(reinterpret_cast<char*>(&number), sizeof(number));
         mainBuffer.push_back(number);
     }
+    fileIndex = file.tellg();
+    if (fileIndex == -1) {
+        std::cerr << "Error: Failed to get file position" << std::endl;
+        fileIndex = 0;
+        return std::nullopt;
+    }
 
-    return &Record(mainBuffer);
+    return Record(mainBuffer);
 
 }
 
@@ -58,5 +64,6 @@ void inputHandler::openFile(std::string fileName)
 
 void inputHandler::closeFile()
 {
+    this->fileIndex = 0;
     this->file.close();
 }

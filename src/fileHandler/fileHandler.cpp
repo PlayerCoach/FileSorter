@@ -14,12 +14,12 @@ fileHandler::fileHandler()
 
 void fileHandler::start(std::string inputFileName, std::string outputFileName) {}
 
-Record* fileHandler::readRecordFromFile(std::string fileName) {
-    return inputHandler.readRecordFromFile(fileName);
+std::optional<Record> fileHandler::readRecordFromFile(std::string fileName) {
+    return this->inputHandler.readRecordFromFile(fileName);
 }
 
 void fileHandler::writeRecordToFile(std::string fileName, const Record& record) {
-    outputHandler.writeRecordToFile(fileName, record);
+    this->outputHandler.writeRecordToFile(fileName, record);
 }
 
 void fileHandler::clearFile(std::string fileName) {
@@ -47,11 +47,11 @@ void fileHandler::closeFileForOutput() {
 void fileHandler::readReinterpretWrite(std::string inputFileName, std::string outputFileName) {
     openFileForInput(inputFileName);
     openFileForOutput(outputFileName);
-    Record* record;
-    while ((record = readRecordFromFile(inputFileName)) != nullptr)
+    std::optional<Record> record;
+   while ((record = readRecordFromFile(inputFileName)) != std::nullopt)
     {
-        std::cout << "Current record" << *record << std::endl;
-        writeRecordToFile(outputFileName, *record);
+        std::cout << record.value() << std::endl;
+        writeRecordToFile(outputFileName, record.value());
     }
     closeFileForInput();
     closeFileForOutput();

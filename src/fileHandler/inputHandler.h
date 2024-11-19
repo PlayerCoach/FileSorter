@@ -7,17 +7,17 @@
 #include <bit>
 #include <bitset>
 #include <stdlib.h>
-
+#include <optional>
 class inputHandler
 {
 private:
     std::ifstream file;
     int inputBuffer[BUFFER_SIZE];
     Record binaryToRecord(char* recordBuffer, const int& size);
-    int fileIndex = 0;
+    std::streampos fileIndex = 0;
 public:
     inputHandler();
-    Record readRecordFromFile(std::string fileName);
+    std::optional<Record> readRecordFromFile(std::string fileName);
     void openFile(std::string fileName);
     void closeFile();
 };
