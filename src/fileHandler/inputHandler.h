@@ -18,7 +18,7 @@ private:
 public:
     inputHandler();
     std::optional<Record> readRecordFromFile(std::string fileName);
-    char* readBlockFromFile(std::string fileName, bool& eof, int& size);
+    char* readBlockFromFile(std::string fileName, bool& eof, int size);
     void openFile(std::string fileName);
     void closeFile();
 };

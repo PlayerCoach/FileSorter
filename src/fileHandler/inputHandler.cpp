@@ -52,7 +52,7 @@ std::optional<Record> inputHandler::readRecordFromFile(std::string fileName)
 
 }
 
-char* inputHandler::readBlockFromFile(std::string fileName, bool& eof, int &size)
+char* inputHandler::readBlockFromFile(std::string fileName, bool& eof, int size)
 {
     if (!this->file.is_open())
     {
@@ -71,16 +71,16 @@ char* inputHandler::readBlockFromFile(std::string fileName, bool& eof, int &size
         eof = true;
     }
 
-     if (bytesRead < BUFFER_SIZE)
-    {
-        std::cout << "changing size" << std::endl;
-        char* resizedBuffer = new char[bytesRead];
-        std::memcpy(resizedBuffer, buffer, bytesRead);
-        delete[] buffer;
-        std::cout<< bytesRead << std::endl;
-        size = bytesRead;
-        return resizedBuffer;
-    }
+    //  if (bytesRead < BUFFER_SIZE)
+    // {
+    //     std::cout << "changing size" << std::endl;
+    //     char* resizedBuffer = new char[bytesRead];
+    //     std::memcpy(resizedBuffer, buffer, bytesRead);
+    //     delete[] buffer;
+    //     std::cout<< bytesRead << std::endl;
+    //     size = bytesRead;
+    //     return resizedBuffer;
+    // }
     return buffer;
 }
 
