@@ -52,7 +52,7 @@ std::optional<Record> inputHandler::readRecordFromFile(std::string fileName)
 
 }
 
-char* inputHandler::readBlockFromFile(std::string fileName, bool& eof, int size)
+char* inputHandler::readBlockFromFile(std::string fileName, bool& eof, int& size)
 {
     if (!this->file.is_open())
     {
@@ -61,26 +61,32 @@ char* inputHandler::readBlockFromFile(std::string fileName, bool& eof, int size)
     }
     this->file.seekg(fileIndex);
     char* buffer = new char[BUFFER_SIZE];
-    std::streamsize bytesRead = this->file.gcount();
     this->file.read(buffer, BUFFER_SIZE);
+    std::streamsize bytesRead = this->file.gcount();
     
     fileIndex = file.tellg();
     if (fileIndex == -1) {
-        //std::cerr << "Error: Failed to get file position" << std::endl;
         fileIndex = 0;
         eof = true;
     }
+     if (bytesRead == 0) // Nothing was read
+    {
+        delete[] buffer;
+        eof = true;
+        size = 0;
+        return nullptr;
+    }
 
-    //  if (bytesRead < BUFFER_SIZE)
-    // {
-    //     std::cout << "changing size" << std::endl;
-    //     char* resizedBuffer = new char[bytesRead];
-    //     std::memcpy(resizedBuffer, buffer, bytesRead);
-    //     delete[] buffer;
-    //     std::cout<< bytesRead << std::endl;
-    //     size = bytesRead;
-    //     return resizedBuffer;
-    // }
+    if (bytesRead < BUFFER_SIZE)
+    {
+        std::cout << "changing size" << std::endl;
+        char* resizedBuffer = new char[bytesRead];
+        std::memcpy(resizedBuffer, buffer, bytesRead);
+        delete[] buffer;
+        std::cout<< bytesRead << std::endl;
+        size = static_cast<int>(bytesRead);
+        return resizedBuffer;
+    }
     return buffer;
 }
 

@@ -65,9 +65,10 @@ void fileHandler::readWriteBlock(std::string inputFileName, std::string outputFi
     bool eof = false;
     while (!eof)
     {
-        block = inputHandler.readBlockFromFile(inputFileName, eof, BUFFER_SIZE);
-        outputHandler.writeBlockToFile(outputFileName, block);
+        block = inputHandler.readBlockFromFile(inputFileName, eof, size);
+        outputHandler.writeBlockToFile(outputFileName, block, size);
         delete[] block;
+        size = BUFFER_SIZE;
        
     }
     closeFileForInput();
