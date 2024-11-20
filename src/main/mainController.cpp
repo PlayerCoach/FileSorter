@@ -79,7 +79,8 @@ bool mainController::interpretUserInput(std::vector<std::string> tokens)
         this->fileHandler.closeFileForOutput();
         std::cout << "Records added" << std::endl;
 
-        this->fileHandler.readReinterpretWrite(filePath, "out\\test.bin");
+        //this->fileHandler.readReinterpretWrite(filePath, "out\\test.bin");
+        this->fileHandler.readWriteBlock(filePath, "out\\test.bin");
        }
        catch(const std::exception& e)
        {

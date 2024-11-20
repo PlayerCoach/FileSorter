@@ -9,7 +9,6 @@ fileHandler::fileHandler()
         std::cout << "Output folder created" << std::endl;
     }
     
-
 }
 
 void fileHandler::start(std::string inputFileName, std::string outputFileName) {}
@@ -52,6 +51,32 @@ void fileHandler::readReinterpretWrite(std::string inputFileName, std::string ou
     {
         std::cout << record.value() << std::endl;
         writeRecordToFile(outputFileName, record.value());
+    }
+    std::cout<< "Write numbers: " <<  this->outputHandler.getWriteNumber() << std::endl;
+    closeFileForInput();
+    closeFileForOutput();
+}
+
+void fileHandler::readWriteBlock(std::string inputFileName, std::string outputFileName) {
+    openFileForInput(inputFileName);
+    openFileForOutput(outputFileName);
+    char* block;
+    int size = BUFFER_SIZE;
+    bool eof = false;
+    while (!eof)
+    {
+        block = inputHandler.readBlockFromFile(inputFileName, eof, size);
+        if(size != BUFFER_SIZE)
+        {
+            std::cout << "im here" << std::endl;
+            outputHandler.writeBlockToFile(outputFileName, block, size);
+        }
+        else
+        {
+            std::cout << "im in else" << std::endl;
+        outputHandler.writeBlockToFile(outputFileName, block);
+        }
+        size = BUFFER_SIZE;
     }
     closeFileForInput();
     closeFileForOutput();

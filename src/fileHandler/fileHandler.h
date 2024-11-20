@@ -25,5 +25,6 @@ public:
     void openFileForOutput(std::string fileName);
     void closeFileForOutput();
     void readReinterpretWrite(std::string inputFileName, std::string outputFileName);
+    void readWriteBlock(std::string inputFileName, std::string outputFileName);
 
 };

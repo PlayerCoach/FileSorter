@@ -52,6 +52,39 @@ std::optional<Record> inputHandler::readRecordFromFile(std::string fileName)
 
 }
 
+char* inputHandler::readBlockFromFile(std::string fileName, bool& eof, int &size)
+{
+    if (!this->file.is_open())
+    {
+        std::cerr << "Error: File not open" << std::endl;
+        return nullptr;
+    }
+    this->file.seekg(fileIndex);
+    char* buffer = new char[BUFFER_SIZE];
+    std::streamsize bytesRead = this->file.gcount();
+    this->file.read(buffer, BUFFER_SIZE);
+    
+    fileIndex = file.tellg();
+    if (fileIndex == -1) {
+        //std::cerr << "Error: Failed to get file position" << std::endl;
+        fileIndex = 0;
+        eof = true;
+    }
+
+     if (bytesRead < BUFFER_SIZE)
+    {
+        std::cout << "changing size" << std::endl;
+        char* resizedBuffer = new char[bytesRead];
+        std::memcpy(resizedBuffer, buffer, bytesRead);
+        delete[] buffer;
+        std::cout<< bytesRead << std::endl;
+        size = bytesRead;
+        return resizedBuffer;
+    }
+    return buffer;
+}
+
+
 void inputHandler::openFile(std::string fileName)
 {
     this->file.open(fileName, std::ios::in | std::ios::binary);
@@ -60,6 +93,7 @@ void inputHandler::openFile(std::string fileName)
         std::cerr << "Error: Could not open file " << fileName << std::endl;
         exit(1);
     }
+    this->fileIndex = 0;
 }
 
 void inputHandler::closeFile()
