@@ -62,6 +62,7 @@ char* inputHandler::readBlockFromFile(std::string fileName, bool& eof, int& size
     this->file.seekg(fileIndex);
     char* buffer = new char[BUFFER_SIZE];
     this->file.read(buffer, BUFFER_SIZE);
+    this->readNumber++;
     std::streamsize bytesRead = this->file.gcount();
     
     fileIndex = file.tellg();
@@ -106,4 +107,9 @@ void inputHandler::closeFile()
 {
     this->fileIndex = 0;
     this->file.close();
+}
+
+const int inputHandler::getReadNumber() const
+{
+    return this->readNumber;
 }

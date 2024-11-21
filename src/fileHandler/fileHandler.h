@@ -1,3 +1,4 @@
+#pragma once
 #include "inputHandler.h"
 #include "outputHandler.h"
 #include "const.h"
@@ -7,6 +8,7 @@
 #include <fstream>
 #include <string>
 #include <optional>
+#include <unordered_map>
 
 class fileHandler
 {

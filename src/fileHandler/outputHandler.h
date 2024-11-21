@@ -1,15 +1,15 @@
+#pragma once
 #include <iostream> 
 #include <fstream>
 #include <string>
 #include "const.h"
 #include "record.h"
 #include <bitset>
-//class than handles the output of the program and writing blocks to the file // maby use inharitence later, for clarity
 class outputHandler
 {
 private:
     std::ofstream file;
-    char outputBuffer[BUFFER_SIZE];
+    //char outputBuffer[BUFFER_SIZE];
     int outputBufferIndex = 0;
     std::string recordToBinary(const Record& record);
     int writeNumber = 0;

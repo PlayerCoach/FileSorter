@@ -71,6 +71,9 @@ void fileHandler::readWriteBlock(std::string inputFileName, std::string outputFi
         size = BUFFER_SIZE;
        
     }
+    std::cout<< "Read number" << inputHandler.getReadNumber() << std::endl;
+    std::cout<< "Write number" << outputHandler.getWriteNumber() << std::endl;
+
     closeFileForInput();
     closeFileForOutput();
 }

@@ -10,20 +10,20 @@ void outputHandler::writeBlockToFile(std::string fileName, char* content, int si
 void outputHandler::writeRecordToFile(std::string fileName, const Record& record)
 {
     
-    int32_t size = record.getSeries().size();
+    int32_t size = static_cast<int32_t>(record.getSeries().size());
     this->file.write(reinterpret_cast<char*>(&size), sizeof(size));
-    this->writeNumber++;
+    //this->writeNumber++;
     for(int number : record.getSeries())
     {
         this->file.write(reinterpret_cast<char*>(&number), sizeof(number));
-        this->writeNumber++;
+        //this->writeNumber++;
         
     }
     
 }
 void outputHandler::openFile(std::string fileName)
 {
-    this->file.open(fileName, std::ios::app | std::ios::binary );
+    this->file.open(fileName, std::ios::binary ); //  <- deleted app flag here
 
     if(!this->file.is_open())
     {
