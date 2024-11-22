@@ -9,10 +9,16 @@
 class inputHandler
 {
 private:
+    std::string fileName;
+
     std::ifstream file;
     int readNumber = 0;
-    Record binaryToRecord(char* recordBuffer, const int& size);
     std::streampos fileIndex = 0;
+
+    char* readBuffer = nullptr;
+    int readBufferSize = BUFFER_SIZE;
+    int readBufferIndex  = BUFFER_SIZE; // symbolizes that the buffer is empty
+    bool eof = false;
 public:
     inputHandler();
     std::optional<Record> readRecordFromFile(std::string fileName);
@@ -20,6 +26,7 @@ public:
     void openFile(std::string fileName);
     void closeFile();
     const int getReadNumber() const;
+    std::optional<Record> readRecordFromBuffer();
 };
 
 

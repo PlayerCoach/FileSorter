@@ -111,6 +111,30 @@ void fileHandler::readReinterpretWrite(const std::string& inputFileName, const s
     closeFileForOutput(outputFileName);
 }
 
+char* fileHandler::readBlockFromFile(const std::string& fileName, bool& eof, int& size) {
+    try
+    {
+        return this->inputHandlers.at(fileName).readBlockFromFile(fileName, eof, size);
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        exit(1);
+    }
+}
+
+void fileHandler::writeBlockToFile(const std::string& fileName, char* content, int size) {
+    try
+    {
+        this->outputHandlers.at(fileName).writeBlockToFile(fileName, content, size);
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        exit(1);
+    }
+}
+
 void fileHandler::readWriteBlock(const std::string& inputFileName, const std::string& outputFileName) {
     openFileForInput(inputFileName);
     openFileForOutput(outputFileName);
@@ -132,3 +156,38 @@ void fileHandler::readWriteBlock(const std::string& inputFileName, const std::st
     closeFileForOutput(outputFileName);
 }
 
+void fileHandler::writeRecordToBuffer(const std::string& fileName, const Record& record) {
+    try
+    {
+        this->outputHandlers.at(fileName).writeRecordToBuffer(record);
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        exit(1);
+    }
+}
+
+void fileHandler::readRecordFromBuffer(const std::string& fileName) {
+    try
+    {
+        this->inputHandlers.at(fileName).readRecordFromBuffer();
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        exit(1);
+    }
+}
+
+void fileHandler::flushBuffer(const std::string& fileName) {
+    try
+    {
+        this->outputHandlers.at(fileName).flushBuffer();
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        exit(1);
+    }
+}

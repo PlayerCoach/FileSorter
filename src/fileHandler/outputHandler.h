@@ -8,11 +8,15 @@
 class outputHandler
 {
 private:
+    std::string fileName;
+
     std::ofstream file;
-    //char outputBuffer[BUFFER_SIZE];
-    int outputBufferIndex = 0;
-    std::string recordToBinary(const Record& record);
     int writeNumber = 0;
+    
+    char* writeBuffer = nullptr;
+    int writeBufferSize = BUFFER_SIZE;
+    int writeBufferIndex= 0;
+    bool eof = false;
 public:
     outputHandler();
     void writeRecordToFile(std::string fileName, const Record& record);
@@ -20,4 +24,7 @@ public:
     void openFile(std::string fileName);
     void closeFile();
     int getWriteNumber() const;
+    void writeRecordToBuffer(const Record& record);
+    void flushBuffer();
+
 };

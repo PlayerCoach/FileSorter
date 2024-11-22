@@ -1,18 +1,5 @@
 #include "inputHandler.h"
 
-Record inputHandler::binaryToRecord(char* recordBuffer, const int& size)
-{
-    std::vector<int> record;
-    int number;
-    std::string binaryString;
-    for (int i = 0; i < size; i++)
-    {
-        binaryString = std::string(recordBuffer + i * 32, 32);
-        number = stoi(binaryString, 0, 2);
-        record.push_back(number);
-    }
-    return Record(record);
-}
 inputHandler::inputHandler() {}
 std::optional<Record> inputHandler::readRecordFromFile(std::string fileName) 
 {
@@ -91,7 +78,6 @@ char* inputHandler::readBlockFromFile(std::string fileName, bool& eof, int& size
     return buffer;
 }
 
-
 void inputHandler::openFile(std::string fileName)
 {
     this->file.open(fileName, std::ios::in | std::ios::binary);
@@ -100,7 +86,13 @@ void inputHandler::openFile(std::string fileName)
         std::cerr << "Error: Could not open file " << fileName << std::endl;
         exit(1);
     }
+    this->fileName = fileName;
     this->fileIndex = 0;
+
+    char* readBuffer = nullptr;
+    int readBufferSize = BUFFER_SIZE;
+    int readBufferIndex  = BUFFER_SIZE; // symbolizes that the buffer is empty
+    bool eof = false;
 }
 
 void inputHandler::closeFile()
@@ -112,4 +104,43 @@ void inputHandler::closeFile()
 const int inputHandler::getReadNumber() const
 {
     return this->readNumber;
+}
+
+std::optional<Record> inputHandler::readRecordFromBuffer()
+{
+    if(this->eof)
+    {
+        delete[] this->readBuffer;
+        return std::nullopt;
+    }
+    if(this->readBufferIndex == this->readBufferSize)
+    {
+        delete[] this->readBuffer;
+        this->readBuffer = readBlockFromFile(this->fileName, this->eof , this->readBufferSize);
+        this->readBufferIndex = 0;
+    }
+    if(this->readBuffer == nullptr)
+    {
+        return std::nullopt;
+    }
+    int32_t size;
+
+    reinterpret_cast<int32_t&>(size) = *reinterpret_cast<int32_t*>(this->readBuffer + this->readBufferIndex);
+    this->readBufferIndex += sizeof(size);
+    std::vector <int> mainBuffer;
+    int32_t number;
+    for(int i = 0; i < size; i++)
+    {
+        reinterpret_cast<int32_t&>(number) = *reinterpret_cast<int32_t*>(this->readBuffer + this->readBufferIndex);
+        this->readBufferIndex += sizeof(number);
+        mainBuffer.push_back(number);
+        if(this->readBufferIndex == this->readBufferSize)
+        {
+            delete[] this->readBuffer;
+            this->readBuffer = readBlockFromFile(this->fileName, this->eof , this->readBufferSize);
+            this->readBufferIndex = 0;
+        }
+    }
+    return Record(mainBuffer);
+
 }
