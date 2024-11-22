@@ -8,6 +8,7 @@
 #include "sorter.h"
 #include "naturalMergeSort.h"
 #include "sortingStrategy.h"
+#include "outputFileNames.h"
 
 class mainController
 {

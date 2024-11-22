@@ -15,18 +15,21 @@ private:
     int readNumber = 0;
     std::streampos fileIndex = 0;
 
-    char* readBuffer = nullptr;
+    char readBuffer[BUFFER_SIZE]; // buffer for reading from file
     int readBufferSize = BUFFER_SIZE;
     int readBufferIndex  = BUFFER_SIZE; // symbolizes that the buffer is empty
     bool eof = false;
+
+    void readBlockFromFile();
 public:
     inputHandler();
-    std::optional<Record> readRecordFromFile(std::string fileName);
-    char* readBlockFromFile(std::string fileName, bool& eof, int& size);
+    std::optional<Record> readRecordFromFile();
     void openFile(std::string fileName);
     void closeFile();
     const int getReadNumber() const;
-    std::optional<Record> readRecordFromBuffer(bool& eofRef);
+    std::optional<Record> readRecordFromBuffer();
+    bool allFilesRead() const;
+
 };
 
 

@@ -1,7 +1,7 @@
 #include "inputHandler.h"
 
 inputHandler::inputHandler() {}
-std::optional<Record> inputHandler::readRecordFromFile(std::string fileName) 
+std::optional<Record> inputHandler::readRecordFromFile() 
 {
     
     if(!this->file.is_open())
@@ -10,28 +10,36 @@ std::optional<Record> inputHandler::readRecordFromFile(std::string fileName)
         return std::nullopt;
     }
 
-    this->file.seekg(fileIndex);
+    this->file.seekg(this->fileIndex);
  
     int32_t size;
     this->file.read(reinterpret_cast<char*>(&size), sizeof(size));
 
-    if (this->file.eof() || this->file.fail())
+    if (this->file.eof())
     {
-        std::cout<<"EOF or read failure"<<std::endl;
+        std::cout<<"EOF "<<std::endl;
         return std::nullopt; // EOF or read failure
+    }
+
+    if(this->file.fail())
+    {
+        std::cerr << "Error: Failed to read size" << std::endl;
+        return std::nullopt;
     }
 
     std::vector <int> mainBuffer;
     int32_t number;
+
     for(int i = 0; i < size; i++)
     {
         this->file.read(reinterpret_cast<char*>(&number), sizeof(number));
         mainBuffer.push_back(number);
     }
-    fileIndex = file.tellg();
-    if (fileIndex == -1) {
+    this->fileIndex = file.tellg();
+    if (fileIndex == -1) 
+    {
         std::cerr << "Error: Failed to get file position" << std::endl;
-        fileIndex = 0;
+        this->fileIndex = 0;
         return std::nullopt;
     }
 
@@ -39,43 +47,35 @@ std::optional<Record> inputHandler::readRecordFromFile(std::string fileName)
 
 }
 
-char* inputHandler::readBlockFromFile(std::string fileName, bool& eof, int& size)
+void inputHandler::readBlockFromFile()
 {
     if (!this->file.is_open())
     {
         std::cerr << "Error: File not open" << std::endl;
-        return nullptr;
+        this->readBufferSize = 0;
     }
-    this->file.seekg(fileIndex);
-    char* buffer = new char[BUFFER_SIZE];
-    this->file.read(buffer, BUFFER_SIZE);
+    this->file.seekg(this->fileIndex);
+    this->file.read(this->readBuffer, BUFFER_SIZE);
     this->readNumber++;
     std::streamsize bytesRead = this->file.gcount();
     
-    fileIndex = file.tellg();
-    if (fileIndex == -1) {
-        fileIndex = 0;
-        eof = true;
+    this->fileIndex = file.tellg();
+    if (this->fileIndex == -1) 
+    {
+        this->fileIndex = 0;
+        this->eof = true;
     }
+
      if (bytesRead == 0) // Nothing was read
     {
-        delete[] buffer;
-        eof = true;
-        size = 0;
-        return nullptr;
+        this->eof = true;
+        this->readBufferSize = 0;
     }
 
     if (bytesRead < BUFFER_SIZE)
     {
-        //std::cout << "changing size" << std::endl;
-        char* resizedBuffer = new char[bytesRead];
-        std::memcpy(resizedBuffer, buffer, bytesRead);
-        delete[] buffer;
-        //std::cout<< bytesRead << std::endl;
-        size = static_cast<int>(bytesRead);
-        return resizedBuffer;
+        this->readBufferSize = static_cast<int>(bytesRead);
     }
-    return buffer;
 }
 
 void inputHandler::openFile(std::string fileName)
@@ -87,7 +87,6 @@ void inputHandler::openFile(std::string fileName)
         exit(1);
     }
     this->fileName = fileName;
-    this->fileIndex = 0;
 
     
 }
@@ -102,12 +101,17 @@ const int inputHandler::getReadNumber() const
     return this->readNumber;
 }
 
-std::optional<Record> inputHandler::readRecordFromBuffer(bool& eofRef)
+std::optional<Record> inputHandler::readRecordFromBuffer()
 {
+
+    if(this->allFilesRead())
+    {
+        return std::nullopt;
+    }
+
     if (this->readBufferIndex == this->readBufferSize) {
-        delete[] this->readBuffer;
         this->readBufferSize = BUFFER_SIZE;
-        this->readBuffer = readBlockFromFile(this->fileName, this->eof, this->readBufferSize);
+        this->readBlockFromFile();
         this->readBufferIndex = 0;
     }
 
@@ -115,27 +119,24 @@ std::optional<Record> inputHandler::readRecordFromBuffer(bool& eofRef)
     int32_t size;
     if (this->readBufferIndex + sizeof(int32_t) > this->readBufferSize) {
         std::cerr << "Error: Not enough data to read size" << std::endl;
-        eofRef = true;
         return std::nullopt;
     }
 
-    // Copy 4 bytes into the size variable
     std::memcpy(&size, this->readBuffer + this->readBufferIndex, sizeof(int32_t));
     this->readBufferIndex += sizeof(int32_t);
 
-    //std::cout << "size: " << size << std::endl;
-
     std::vector<int32_t> mainBuffer;
-    for (int i = 0; i < size; i++) {
-        if (this->readBufferIndex + sizeof(int32_t) > this->readBufferSize) {
-            delete[] this->readBuffer;
-            this->readBufferSize = BUFFER_SIZE;
-            this->readBuffer = readBlockFromFile(this->fileName, this->eof, this->readBufferSize);
-            this->readBufferIndex = 0;
-            eofRef = this->eof;
 
-            if (this->readBuffer == nullptr) {
-                std::cerr << "Error: Reached EOF while reading a record" << std::endl;
+    for (int i = 0; i < size; i++) {
+        if (this->readBufferIndex + sizeof(int32_t) > this->readBufferSize) 
+        {
+            this->readBufferSize = BUFFER_SIZE;
+            this->readBufferIndex = 0;
+            this->readBlockFromFile();
+
+            if(this->readBufferSize == 0)
+            {
+                std::cerr << "Error: Not enough data to read number" << std::endl;
                 return std::nullopt;
             }
         }
@@ -145,6 +146,10 @@ std::optional<Record> inputHandler::readRecordFromBuffer(bool& eofRef)
         this->readBufferIndex += sizeof(int32_t);
         mainBuffer.push_back(number);
     }
-    std::cout << Record(mainBuffer) << std::endl;
+    //std::cout << Record(mainBuffer) << std::endl;
     return Record(mainBuffer);
+}
+bool inputHandler::allFilesRead() const
+{
+    return this->eof && this->readBufferIndex >= this->readBufferSize;
 }

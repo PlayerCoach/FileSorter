@@ -1,13 +1,13 @@
 #include "outputHandler.h"
 
 outputHandler::outputHandler() {}
-void outputHandler::writeBlockToFile(std::string fileName, char* content, int size) {
-    // dont need to check for content size, if will be handled by the fileHandler class
+void outputHandler::writeBlockToFile() {
 
-    this->file.write(content, size);
+    this->file.write(this->writeBuffer, this->writeBufferIndex);
+    this->file.flush(); 
     this->writeNumber++;
 }
-void outputHandler::writeRecordToFile(std::string fileName, const Record& record)
+void outputHandler::writeRecordToFile(const Record& record)
 {
     
     int32_t size = static_cast<int32_t>(record.getSeries().size());
@@ -21,7 +21,7 @@ void outputHandler::writeRecordToFile(std::string fileName, const Record& record
     }
     
 }
-void outputHandler::openFile(std::string fileName)
+void outputHandler::openFile(const std::string& fileName)
 {
     this->file.open(fileName, std::ios::binary); //  <- deleted app flag here
 
@@ -31,11 +31,6 @@ void outputHandler::openFile(std::string fileName)
         return;
     }
     this->fileName = fileName;
-    this->writeNumber = 0;
-
-    this->writeBufferIndex = BUFFER_SIZE;
-    this->eof = false;
-
 }
 void outputHandler::closeFile()
 {
@@ -55,17 +50,24 @@ void outputHandler::writeRecordToBuffer(const Record& record)
     
     if(this->writeBufferIndex >= this->writeBufferSize)
     {
-        this->writeBlockToFile(this->fileName, this->writeBuffer, this->writeBufferSize);
+        if(this->writeBufferIndex > this->writeBufferSize)
+            this->writeBufferIndex = this->writeBufferIndex;
+        this->writeBlockToFile();
         this->writeBufferIndex = 0;
     }
+
+    int32_t number32;
+
     for(int number : record.getSeries())
     {
-        reinterpret_cast<char*>(&number);
-        memcpy(this->writeBuffer + this->writeBufferIndex, &number, sizeof(number));
-        this->writeBufferIndex += sizeof(number);
+        number32 = static_cast<int32_t>(number);
+        reinterpret_cast<char*>(&number32);
+        memcpy(this->writeBuffer + this->writeBufferIndex, &number32, sizeof(number32));
+        this->writeBufferIndex += sizeof(number32); // <- maby this is not 4?
+
         if(this->writeBufferIndex >= this->writeBufferSize)
         {
-            this->writeBlockToFile(this->fileName, this->writeBuffer, this->writeBufferSize);
+            this->writeBlockToFile();
             this->writeBufferIndex = 0;
             
         }
@@ -74,8 +76,13 @@ void outputHandler::writeRecordToBuffer(const Record& record)
 
 void outputHandler::flushBuffer()
 {
-    this->writeBlockToFile(this->fileName, this->writeBuffer, this->writeBufferIndex);
-    this->writeBufferIndex = 0;
+    if(this->writeBufferIndex > 0)
+    {
+        if(this->writeBufferIndex > this->writeBufferSize)
+            this->writeBufferIndex = this->writeBufferIndex;
+        this->writeBlockToFile();  
+        this->writeBufferIndex = 0;
+    }
 }
 
 

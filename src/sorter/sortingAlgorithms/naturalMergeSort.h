@@ -11,6 +11,6 @@ public:
     void sort() override;
     void initNaturalMergeSort();
     
-    void divide();
+    std::optional<std::string> divide();
     void merge();
 };

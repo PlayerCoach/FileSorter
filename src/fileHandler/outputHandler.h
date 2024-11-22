@@ -14,14 +14,14 @@ private:
     int writeNumber = 0;
     
     char writeBuffer[BUFFER_SIZE];
-    int writeBufferSize = BUFFER_SIZE;
+    const int writeBufferSize = BUFFER_SIZE;
     int writeBufferIndex= 0;
-    bool eof = false;
+
+    void writeBlockToFile();
 public:
     outputHandler();
-    void writeRecordToFile(std::string fileName, const Record& record);
-    void writeBlockToFile(std::string fileName, char* content, int size = BUFFER_SIZE);
-    void openFile(std::string fileName);
+    void writeRecordToFile(const Record& record);
+    void openFile(const std::string& fileName);
     void closeFile();
     int getWriteNumber() const;
     void writeRecordToBuffer(const Record& record);

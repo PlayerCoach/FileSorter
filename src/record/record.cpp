@@ -21,6 +21,17 @@ int Record::getMaxUnique(const Record &other) const
     return isSetMax ? maxUnique : INT_MIN; 
 }
 
+void Record::sortDescending()
+{
+    std::vector<int> sortedSeries(this->series.begin(), this->series.end());
+    std::sort(sortedSeries.begin(), sortedSeries.end(), std::less<int>());
+    this->series.clear();
+    for (int num : sortedSeries)
+    {
+        this->series.insert(num);
+    }
+}
+
 
 //public 
 
@@ -37,7 +48,7 @@ Record::Record()
     {
         this->series.insert(dist(gen));
     }
-    
+    //this->sortDescending();
 }
 
 Record::Record(std::vector<int> series)
@@ -48,6 +59,7 @@ Record::Record(std::vector<int> series)
         }
         this->series.insert(element);
     }
+    //this->sortDescending();
     
 }
 
@@ -68,7 +80,12 @@ bool Record::operator<(const Record &record) const
     int maxA = this->getMaxUnique(record);
     int maxB = record.getMaxUnique(*this);
 
-    if (maxA == INT_MIN && maxB != INT_MIN)
+       // If both are invalid (INT_MIN), they are considered equal
+    if (maxA == INT_MIN && maxB == INT_MIN)
+        return false;
+
+    // INT_MIN is considered smaller than any valid value
+    if (maxA == INT_MIN)
         return true;
     if (maxB == INT_MIN)
         return false;
@@ -83,7 +100,11 @@ bool Record::operator>(const Record &record) const
     int maxA = this->getMaxUnique(record);
     int maxB = record.getMaxUnique(*this);
 
-    if (maxB == INT_MIN && maxA != INT_MIN)
+        if (maxA == INT_MIN && maxB == INT_MIN)
+        return false;
+
+    // INT_MIN is considered smaller than any valid value
+    if (maxB == INT_MIN)
         return true;
     if (maxA == INT_MIN)
         return false;
@@ -113,9 +134,9 @@ bool Record::operator>=(const Record &record) const
 
 std::ostream &operator<<(std::ostream &os, const Record &record)
 {
-    for (int num : record.series)
+    for (auto it = record.series.rbegin(); it != record.series.rend(); it++)
     {
-        os << num << " ";
+        os << *it << " ";
     }
     return os;
 }

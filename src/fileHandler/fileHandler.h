@@ -9,12 +9,13 @@
 #include <string>
 #include <optional>
 #include <unordered_map>
+#include <memory>
 
 class fileHandler
 {
 private:
-    std::unordered_map<std::string, inputHandler> inputHandlers;
-    std::unordered_map<std::string, outputHandler> outputHandlers;
+    std::unordered_map<std::string, std::unique_ptr<inputHandler>> inputHandlers;
+    std::unordered_map<std::string, std::unique_ptr<outputHandler>> outputHandlers;
 public:
     fileHandler();
     std::optional<Record> readRecordFromFile(const std::string& fileName);
@@ -26,10 +27,14 @@ public:
     void closeFileForOutput(const std::string& fileName);
     void readReinterpretWrite(const std::string& inputFileName, const std::string& outputFileName);
     void readWriteBlock(const std::string& inputFileName, const std::string& outputFileName);
-    char* readBlockFromFile(const std::string& fileName, bool& eof, int& size);
-    void writeBlockToFile(const std::string& fileName, char* content, int size = BUFFER_SIZE);
     void writeRecordToBuffer(const std::string& fileName, const Record& record);
-    std::optional<Record> readRecordFromBuffer(const std::string& fileName, bool& eof);
+    std::optional<Record> readRecordFromBuffer(const std::string& fileName);
     void flushWriteBuffer(const std::string& fileName);
+    void displayFile(const std::string& fileName);
+    bool allFilesRead(const std::string& fileName);
+    int getReadNumber(const std::string& fileName) const;
+    int getWriteNumber(const std::string& fileName) const;
+    int getNumberOfActiveFiles() const;
+
 
 };

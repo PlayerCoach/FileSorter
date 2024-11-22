@@ -14,7 +14,7 @@ fileHandler::fileHandler()
 std::optional<Record> fileHandler::readRecordFromFile(const std::string& fileName) {
     try
     {
-       return this->inputHandlers.at(fileName).readRecordFromFile(fileName);
+       return this->inputHandlers.at(fileName)->readRecordFromFile();
     }
     catch(const std::exception& e)
     {
@@ -26,7 +26,7 @@ std::optional<Record> fileHandler::readRecordFromFile(const std::string& fileNam
 void fileHandler::writeRecordToFile(const std::string& fileName, const Record& record) {
     try
     {
-        this->outputHandlers.at(fileName).writeRecordToFile(fileName, record);
+        this->outputHandlers.at(fileName)->writeRecordToFile(record);
     }
     catch(const std::exception& e)
     {
@@ -47,9 +47,9 @@ void fileHandler::openFileForInput(const std::string& fileName) {
     try
     {
         if (inputHandlers.find(fileName) == inputHandlers.end()) 
-            inputHandlers[fileName] = inputHandler();
+            inputHandlers[fileName] = std::make_unique<inputHandler>();
         
-        inputHandlers[fileName].openFile(fileName);
+        inputHandlers[fileName]->openFile(fileName);
     }
     catch(const std::exception& e)
     {
@@ -61,9 +61,8 @@ void fileHandler::closeFileForInput(const std::string& fileName) {
     try
     {
         // add file is open later on
-        this->inputHandlers.at(fileName).closeFile();
+        this->inputHandlers.at(fileName)->closeFile();
         this->inputHandlers.erase(fileName);
-        std::cout << "File closed" << std::endl;
     }
     catch(const std::exception& e)
     {
@@ -76,9 +75,9 @@ void fileHandler::openFileForOutput(const std::string& fileName) {
     try
     {
         if(outputHandlers.find(fileName) == outputHandlers.end())
-            outputHandlers[fileName] = outputHandler();
+            outputHandlers[fileName] = std::make_unique<outputHandler>();
         
-        outputHandlers[fileName].openFile(fileName);
+        outputHandlers[fileName]->openFile(fileName);
     }
     catch(const std::exception& e)
     {
@@ -90,7 +89,7 @@ void fileHandler::openFileForOutput(const std::string& fileName) {
 void fileHandler::closeFileForOutput(const std::string& fileName) {
     try
     {
-        this->outputHandlers.at(fileName).closeFile();
+        this->outputHandlers.at(fileName)->closeFile();
         this->outputHandlers.erase(fileName);
     }
     catch(const std::exception& e)
@@ -109,62 +108,35 @@ void fileHandler::readReinterpretWrite(const std::string& inputFileName, const s
         std::cout << record.value() << std::endl;
         writeRecordToFile(outputFileName, record.value());
     }
-    std::cout<< "Write numbers: " <<  this->outputHandlers[outputFileName].getWriteNumber() << std::endl;
+    std::cout<< "Write numbers: " <<  this->outputHandlers[outputFileName]->getWriteNumber() << std::endl;
     closeFileForInput(inputFileName);
     closeFileForOutput(outputFileName);
 }
 
-char* fileHandler::readBlockFromFile(const std::string& fileName, bool& eof, int& size) {
-    try
-    {
-        return this->inputHandlers.at(fileName).readBlockFromFile(fileName, eof, size);
-    }
-    catch(const std::exception& e)
-    {
-        std::cerr << e.what() << '\n';
-        exit(1);
-    }
-}
-
-void fileHandler::writeBlockToFile(const std::string& fileName, char* content, int size) {
-    try
-    {
-        this->outputHandlers.at(fileName).writeBlockToFile(fileName, content, size);
-    }
-    catch(const std::exception& e)
-    {
-        std::cerr << e.what() << '\n';
-        exit(1);
-    }
-}
-
 void fileHandler::readWriteBlock(const std::string& inputFileName, const std::string& outputFileName) {
     openFileForInput(inputFileName);
-    //openFileForOutput(outputFileName);
-    char* block;
-    int size = BUFFER_SIZE;
-    bool eof = false;
+    openFileForOutput(outputFileName);
+
     std::optional<Record> record;
-    while (!eof)
+    while (!inputHandlers[inputFileName]->allFilesRead())
     {
-        record = readRecordFromBuffer(inputFileName, eof);
-        //std::cout << record.value() << std::endl;
-        //writeRecordToBuffer(outputFileName, record.value());
+        record = readRecordFromBuffer(inputFileName);
+        writeRecordToBuffer(outputFileName, record.value());
 
        
     }
-    //flushWriteBuffer(outputFileName);
-    std::cout<< "Read number" << inputHandlers[inputFileName].getReadNumber() << std::endl;
-    //std::cout<< "Write number" << outputHandlers[outputFileName].getWriteNumber() << std::endl;
+    flushWriteBuffer(outputFileName);
+    std::cout<< "Read number" << inputHandlers[inputFileName]->getReadNumber() << std::endl;
+    std::cout<< "Write number" << outputHandlers[outputFileName]->getWriteNumber() << std::endl;
 
     closeFileForInput(inputFileName);
-    //closeFileForOutput(outputFileName);
+    closeFileForOutput(outputFileName);
 }
 
 void fileHandler::writeRecordToBuffer(const std::string& fileName, const Record& record) {
     try
     {
-        this->outputHandlers.at(fileName).writeRecordToBuffer(record);
+        this->outputHandlers.at(fileName)->writeRecordToBuffer(record);
     }
     catch(const std::exception& e)
     {
@@ -173,10 +145,10 @@ void fileHandler::writeRecordToBuffer(const std::string& fileName, const Record&
     }
 }
 
-std::optional<Record> fileHandler::readRecordFromBuffer(const std::string& fileName, bool& eof) {
+std::optional<Record> fileHandler::readRecordFromBuffer(const std::string& fileName) {
     try
     {
-        return this->inputHandlers.at(fileName).readRecordFromBuffer(eof);
+        return this->inputHandlers.at(fileName)->readRecordFromBuffer();
     }
     catch(const std::exception& e)
     {
@@ -188,11 +160,61 @@ std::optional<Record> fileHandler::readRecordFromBuffer(const std::string& fileN
 void fileHandler::flushWriteBuffer(const std::string& fileName) {
     try
     {
-        this->outputHandlers.at(fileName).flushBuffer();
+        this->outputHandlers.at(fileName)->flushBuffer();
     }
     catch(const std::exception& e)
     {
         std::cerr << e.what() << '\n';
         exit(1);
     }
+}
+
+void fileHandler::displayFile(const std::string& fileName) {
+    openFileForInput(fileName);
+    std::optional<Record> record;
+    while ((record = readRecordFromFile(fileName)) != std::nullopt)
+    {
+        std::cout << record.value() << std::endl;
+    }
+    closeFileForInput(fileName);
+}
+
+bool fileHandler::allFilesRead(const std::string& fileName) {
+    try
+    {
+        return this->inputHandlers.at(fileName)->allFilesRead();
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+    }
+    
+}
+
+int fileHandler::getReadNumber(const std::string& fileName) const {
+    try
+    {
+        return this->inputHandlers.at(fileName)->getReadNumber();
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+    }
+    
+}
+
+int fileHandler::getWriteNumber(const std::string& fileName) const {
+    try
+    {
+        return this->outputHandlers.at(fileName)->getWriteNumber();
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+    }
+    
+}
+
+int fileHandler::getNumberOfActiveFiles() const {
+    return this->inputHandlers.size() + this->outputHandlers.size();
 }

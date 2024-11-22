@@ -17,6 +17,7 @@ private:
     
     //methods 
     int getMaxUnique(const Record &other) const;
+    void sortDescending();
 
 public:
     Record();
