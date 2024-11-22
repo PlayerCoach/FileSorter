@@ -1,3 +1,4 @@
+#pragma once
 #include "fileHandler.h"
 
 class SortingStrategy {

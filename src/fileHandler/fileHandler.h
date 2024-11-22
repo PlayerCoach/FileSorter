@@ -29,7 +29,7 @@ public:
     char* readBlockFromFile(const std::string& fileName, bool& eof, int& size);
     void writeBlockToFile(const std::string& fileName, char* content, int size = BUFFER_SIZE);
     void writeRecordToBuffer(const std::string& fileName, const Record& record);
-    void readRecordFromBuffer(const std::string& fileName);
-    void flushBuffer(const std::string& fileName);
+    std::optional<Record> readRecordFromBuffer(const std::string& fileName, bool& eof);
+    void flushWriteBuffer(const std::string& fileName);
 
 };

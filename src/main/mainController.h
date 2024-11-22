@@ -5,6 +5,9 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include "sorter.h"
+#include "naturalMergeSort.h"
+#include "sortingStrategy.h"
 
 class mainController
 {

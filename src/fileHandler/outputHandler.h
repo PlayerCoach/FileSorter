@@ -13,7 +13,7 @@ private:
     std::ofstream file;
     int writeNumber = 0;
     
-    char* writeBuffer = nullptr;
+    char writeBuffer[BUFFER_SIZE];
     int writeBufferSize = BUFFER_SIZE;
     int writeBufferIndex= 0;
     bool eof = false;

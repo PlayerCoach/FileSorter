@@ -26,7 +26,7 @@ public:
     void openFile(std::string fileName);
     void closeFile();
     const int getReadNumber() const;
-    std::optional<Record> readRecordFromBuffer();
+    std::optional<Record> readRecordFromBuffer(bool& eofRef);
 };
 
 

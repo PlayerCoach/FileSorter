@@ -62,6 +62,8 @@ void fileHandler::closeFileForInput(const std::string& fileName) {
     {
         // add file is open later on
         this->inputHandlers.at(fileName).closeFile();
+        this->inputHandlers.erase(fileName);
+        std::cout << "File closed" << std::endl;
     }
     catch(const std::exception& e)
     {
@@ -89,6 +91,7 @@ void fileHandler::closeFileForOutput(const std::string& fileName) {
     try
     {
         this->outputHandlers.at(fileName).closeFile();
+        this->outputHandlers.erase(fileName);
     }
     catch(const std::exception& e)
     {
@@ -137,23 +140,25 @@ void fileHandler::writeBlockToFile(const std::string& fileName, char* content, i
 
 void fileHandler::readWriteBlock(const std::string& inputFileName, const std::string& outputFileName) {
     openFileForInput(inputFileName);
-    openFileForOutput(outputFileName);
+    //openFileForOutput(outputFileName);
     char* block;
     int size = BUFFER_SIZE;
     bool eof = false;
+    std::optional<Record> record;
     while (!eof)
     {
-        block = inputHandlers[inputFileName].readBlockFromFile(inputFileName, eof, size);
-        outputHandlers[outputFileName].writeBlockToFile(outputFileName, block, size);
-        delete[] block;
-        size = BUFFER_SIZE;
+        record = readRecordFromBuffer(inputFileName, eof);
+        //std::cout << record.value() << std::endl;
+        //writeRecordToBuffer(outputFileName, record.value());
+
        
     }
+    //flushWriteBuffer(outputFileName);
     std::cout<< "Read number" << inputHandlers[inputFileName].getReadNumber() << std::endl;
-    std::cout<< "Write number" << outputHandlers[outputFileName].getWriteNumber() << std::endl;
+    //std::cout<< "Write number" << outputHandlers[outputFileName].getWriteNumber() << std::endl;
 
     closeFileForInput(inputFileName);
-    closeFileForOutput(outputFileName);
+    //closeFileForOutput(outputFileName);
 }
 
 void fileHandler::writeRecordToBuffer(const std::string& fileName, const Record& record) {
@@ -168,10 +173,10 @@ void fileHandler::writeRecordToBuffer(const std::string& fileName, const Record&
     }
 }
 
-void fileHandler::readRecordFromBuffer(const std::string& fileName) {
+std::optional<Record> fileHandler::readRecordFromBuffer(const std::string& fileName, bool& eof) {
     try
     {
-        this->inputHandlers.at(fileName).readRecordFromBuffer();
+        return this->inputHandlers.at(fileName).readRecordFromBuffer(eof);
     }
     catch(const std::exception& e)
     {
@@ -180,7 +185,7 @@ void fileHandler::readRecordFromBuffer(const std::string& fileName) {
     }
 }
 
-void fileHandler::flushBuffer(const std::string& fileName) {
+void fileHandler::flushWriteBuffer(const std::string& fileName) {
     try
     {
         this->outputHandlers.at(fileName).flushBuffer();

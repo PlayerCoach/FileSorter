@@ -33,7 +33,6 @@ void outputHandler::openFile(std::string fileName)
     this->fileName = fileName;
     this->writeNumber = 0;
 
-    this->writeBuffer = new char[BUFFER_SIZE];
     this->writeBufferIndex = BUFFER_SIZE;
     this->eof = false;
 
@@ -53,12 +52,11 @@ void outputHandler::writeRecordToBuffer(const Record& record)
     reinterpret_cast<char*>(&size);
     memcpy(this->writeBuffer + this->writeBufferIndex, &size, sizeof(size));
     this->writeBufferIndex += sizeof(size);
+    
     if(this->writeBufferIndex >= this->writeBufferSize)
     {
-        this->file.write(this->writeBuffer, this->writeBufferSize);
+        this->writeBlockToFile(this->fileName, this->writeBuffer, this->writeBufferSize);
         this->writeBufferIndex = 0;
-        delete[] this->writeBuffer;
-        this->writeBuffer = new char[BUFFER_SIZE];
     }
     for(int number : record.getSeries())
     {
@@ -67,20 +65,17 @@ void outputHandler::writeRecordToBuffer(const Record& record)
         this->writeBufferIndex += sizeof(number);
         if(this->writeBufferIndex >= this->writeBufferSize)
         {
-            this->file.write(this->writeBuffer, this->writeBufferSize);
+            this->writeBlockToFile(this->fileName, this->writeBuffer, this->writeBufferSize);
             this->writeBufferIndex = 0;
-            delete[] this->writeBuffer;
-            this->writeBuffer = new char[BUFFER_SIZE];
+            
         }
     }
 }
 
 void outputHandler::flushBuffer()
 {
-    this->file.write(this->writeBuffer, this->writeBufferIndex);
+    this->writeBlockToFile(this->fileName, this->writeBuffer, this->writeBufferIndex);
     this->writeBufferIndex = 0;
-    delete[] this->writeBuffer;
-    this->writeBuffer = new char[BUFFER_SIZE];
 }
 
 

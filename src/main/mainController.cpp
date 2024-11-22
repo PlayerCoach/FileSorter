@@ -73,14 +73,20 @@ bool mainController::interpretUserInput(std::vector<std::string> tokens)
         for (int i = 0; i < numberOfRecords; i++)
         {
             Record record;
-            //std::cout<< record << std::endl;
+            std::cout<< record << std::endl;
             this->fileHandler.writeRecordToFile(filePath, record);
         }
         this->fileHandler.closeFileForOutput(filePath);
         std::cout << "Records added" << std::endl;
 
         //this->fileHandler.readReinterpretWrite(filePath, "out\\test.bin");
+        //this->fileHandler.readWriteBlock(filePath, "out\\test.bin");
+        std::cout << "----------------------------" << std::endl;
         this->fileHandler.readWriteBlock(filePath, "out\\test.bin");
+        // Sorter sorter;
+        // std::unique_ptr<SortingStrategy> naturalMergeSort = std::make_unique<NaturalMergeSort>(&fileHandler, filePath);
+        // sorter.setStrategy(std::move(naturalMergeSort));
+        //sorter.sort();
        }
        catch(const std::exception& e)
        {

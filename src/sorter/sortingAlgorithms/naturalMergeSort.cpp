@@ -9,41 +9,41 @@ void NaturalMergeSort::sort() {
 }
 void NaturalMergeSort::initNaturalMergeSort() 
 {
-    bufferT block(BUFFER_SIZE);
-    bufferT temp1Buffer(BUFFER_SIZE);
-    bufferT temp2Buffer(BUFFER_SIZE);
-    size_t currentRecordSize;
-    std::vector<int> record;
-    std::optional<Record> prevRecord = std::nullopt;
-
-
-    int size = BUFFER_SIZE;
     bool eof = false;
-    int startIndexOfCurrentRun = 0;
-    int endIndexOfCurrentRun = 0;
-    bool writeToTemp1 = true;
+    std::string currentFile = TEMP_OUTPUT1;
+    std::optional<Record> prevrecord = this->IOhandler->readRecordFromBuffer(inputFile, eof);
+    if(!prevrecord.has_value())
+    {
+        std::cout << "Empty file" << std::endl;
+        return;
+    }
+    this->IOhandler->writeRecordToBuffer(currentFile, prevrecord.value());
+    std::optional<Record> currentRecord = std::nullopt;
+
     while(!eof)
     {
-        block.buffer = IOhandler->readBlockFromFile(inputFile, eof, size); // read new block
-        
-        currentRecordSize = reinterpret_cast<int32_t*>(block.buffer)[0]; // get the size of the record
-        block.index += sizeof(int32_t);
-        endIndexOfCurrentRun += currentRecordSize;
-
-        for(int i = 0; i < currentRecordSize; i++)
+        currentRecord = this->IOhandler->readRecordFromBuffer(inputFile, eof);
+        if(!currentRecord.has_value())
         {
-            record.push_back(reinterpret_cast<int32_t*>(block.buffer)[block.index]);
-            block.index += sizeof(int32_t);
-            endIndexOfCurrentRun+= sizeof(int32_t);
-
-            if(block.isFull())
-            {
-                block.reset();
-                block.buffer = IOhandler->readBlockFromFile(inputFile, eof, size);
-            }
+            //std::cout << "error while reading value from file" << std::endl;
+            eof = true;
+            break;
         }
-        Record prevRecord(record);
+        if(currentRecord.value() < prevrecord.value())
+        {
+            currentFile = (currentFile == TEMP_OUTPUT1) ? TEMP_OUTPUT2 : TEMP_OUTPUT1;
+        }
+        this->IOhandler->writeRecordToBuffer(currentFile, currentRecord.value());
+        prevrecord = currentRecord;
+
+
     }
+    this->IOhandler->flushWriteBuffer(TEMP_OUTPUT1);
+    this->IOhandler->flushWriteBuffer(TEMP_OUTPUT2);
+
+    this->IOhandler->closeFileForInput(inputFile);
+    this->IOhandler->closeFileForOutput(TEMP_OUTPUT1);
+    this->IOhandler->closeFileForOutput(TEMP_OUTPUT2); 
    
 }
 
