@@ -11,39 +11,93 @@ fileHandler::fileHandler()
     
 }
 
-void fileHandler::start(std::string inputFileName, std::string outputFileName) {}
-
-std::optional<Record> fileHandler::readRecordFromFile(std::string fileName) {
-    return this->inputHandler.readRecordFromFile(fileName);
+std::optional<Record> fileHandler::readRecordFromFile(const std::string& fileName) {
+    try
+    {
+       return this->inputHandlers.at(fileName).readRecordFromFile(fileName);
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        exit(1);
+    }
 }
 
-void fileHandler::writeRecordToFile(std::string fileName, const Record& record) {
-    this->outputHandler.writeRecordToFile(fileName, record);
+void fileHandler::writeRecordToFile(const std::string& fileName, const Record& record) {
+    try
+    {
+        this->outputHandlers.at(fileName).writeRecordToFile(fileName, record);
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        exit(1);
+    }
+    
+    
 }
 
-void fileHandler::clearFile(std::string fileName) {
+void fileHandler::clearFile(const std::string& fileName) {
     std::ofstream file;
     file.open(fileName, std::ios::trunc);
     file.close();
 }
 
-void fileHandler::openFileForInput(std::string fileName) {
-    inputHandler.openFile(fileName);
+void fileHandler::openFileForInput(const std::string& fileName) {
+    try
+    {
+        if (inputHandlers.find(fileName) == inputHandlers.end()) 
+            inputHandlers[fileName] = inputHandler();
+        
+        inputHandlers[fileName].openFile(fileName);
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+    }
 }
 
-void fileHandler::closeFileForInput() {
-    inputHandler.closeFile();
+void fileHandler::closeFileForInput(const std::string& fileName) {
+    try
+    {
+        // add file is open later on
+        this->inputHandlers.at(fileName).closeFile();
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+    }
+    
 }
 
-void fileHandler::openFileForOutput(std::string fileName) {
-    outputHandler.openFile(fileName);
+void fileHandler::openFileForOutput(const std::string& fileName) {
+    try
+    {
+        if(outputHandlers.find(fileName) == outputHandlers.end())
+            outputHandlers[fileName] = outputHandler();
+        
+        outputHandlers[fileName].openFile(fileName);
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+    }
+    
 }
 
-void fileHandler::closeFileForOutput() {
-    outputHandler.closeFile();
+void fileHandler::closeFileForOutput(const std::string& fileName) {
+    try
+    {
+        this->outputHandlers.at(fileName).closeFile();
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+    }
+    
 }
 
-void fileHandler::readReinterpretWrite(std::string inputFileName, std::string outputFileName) {
+void fileHandler::readReinterpretWrite(const std::string& inputFileName, const std::string& outputFileName) {
     openFileForInput(inputFileName);
     openFileForOutput(outputFileName);
     std::optional<Record> record;
@@ -52,12 +106,12 @@ void fileHandler::readReinterpretWrite(std::string inputFileName, std::string ou
         std::cout << record.value() << std::endl;
         writeRecordToFile(outputFileName, record.value());
     }
-    std::cout<< "Write numbers: " <<  this->outputHandler.getWriteNumber() << std::endl;
-    closeFileForInput();
-    closeFileForOutput();
+    std::cout<< "Write numbers: " <<  this->outputHandlers[outputFileName].getWriteNumber() << std::endl;
+    closeFileForInput(inputFileName);
+    closeFileForOutput(outputFileName);
 }
 
-void fileHandler::readWriteBlock(std::string inputFileName, std::string outputFileName) {
+void fileHandler::readWriteBlock(const std::string& inputFileName, const std::string& outputFileName) {
     openFileForInput(inputFileName);
     openFileForOutput(outputFileName);
     char* block;
@@ -65,16 +119,16 @@ void fileHandler::readWriteBlock(std::string inputFileName, std::string outputFi
     bool eof = false;
     while (!eof)
     {
-        block = inputHandler.readBlockFromFile(inputFileName, eof, size);
-        outputHandler.writeBlockToFile(outputFileName, block, size);
+        block = inputHandlers[inputFileName].readBlockFromFile(inputFileName, eof, size);
+        outputHandlers[outputFileName].writeBlockToFile(outputFileName, block, size);
         delete[] block;
         size = BUFFER_SIZE;
        
     }
-    std::cout<< "Read number" << inputHandler.getReadNumber() << std::endl;
-    std::cout<< "Write number" << outputHandler.getWriteNumber() << std::endl;
+    std::cout<< "Read number" << inputHandlers[inputFileName].getReadNumber() << std::endl;
+    std::cout<< "Write number" << outputHandlers[outputFileName].getWriteNumber() << std::endl;
 
-    closeFileForInput();
-    closeFileForOutput();
+    closeFileForInput(inputFileName);
+    closeFileForOutput(outputFileName);
 }
 

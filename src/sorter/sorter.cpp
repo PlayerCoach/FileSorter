@@ -1,5 +1,5 @@
 #include "sorter.h"
-#include "sortingAlgorithms/naturalMergeSort.h"
+
 
 void Sorter::setStrategy(std::unique_ptr<SortingStrategy> newStrategy) {
     strategy = std::move(newStrategy);

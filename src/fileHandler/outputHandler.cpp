@@ -23,7 +23,7 @@ void outputHandler::writeRecordToFile(std::string fileName, const Record& record
 }
 void outputHandler::openFile(std::string fileName)
 {
-    this->file.open(fileName, std::ios::binary ); //  <- deleted app flag here
+    this->file.open(fileName, std::ios::binary); //  <- deleted app flag here
 
     if(!this->file.is_open())
     {

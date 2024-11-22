@@ -13,20 +13,18 @@
 class fileHandler
 {
 private:
-    inputHandler inputHandler;
-    outputHandler outputHandler;
-    int mainBuffer[BUFFER_SIZE];
+    std::unordered_map<std::string, inputHandler> inputHandlers;
+    std::unordered_map<std::string, outputHandler> outputHandlers;
 public:
     fileHandler();
-    void start(std::string inputFileName, std::string outputFileName);
-    std::optional<Record> readRecordFromFile(std::string fileName);
-    void writeRecordToFile(std::string fileName, const Record& content);
-    void clearFile(std::string fileName);
-    void openFileForInput(std::string fileName);   
-    void closeFileForInput();
-    void openFileForOutput(std::string fileName);
-    void closeFileForOutput();
-    void readReinterpretWrite(std::string inputFileName, std::string outputFileName);
-    void readWriteBlock(std::string inputFileName, std::string outputFileName);
+    std::optional<Record> readRecordFromFile(const std::string& fileName);
+    void writeRecordToFile(const std::string& fileName, const Record& content);
+    void clearFile(const std::string& fileName);
+    void openFileForInput(const std::string& fileName);   
+    void closeFileForInput(const std::string& fileName);
+    void openFileForOutput(const std::string& fileName);
+    void closeFileForOutput(const std::string& fileName);
+    void readReinterpretWrite(const std::string& inputFileName, const std::string& outputFileName);
+    void readWriteBlock(const std::string& inputFileName, const std::string& outputFileName);
 
 };

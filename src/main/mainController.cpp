@@ -76,7 +76,7 @@ bool mainController::interpretUserInput(std::vector<std::string> tokens)
             //std::cout<< record << std::endl;
             this->fileHandler.writeRecordToFile(filePath, record);
         }
-        this->fileHandler.closeFileForOutput();
+        this->fileHandler.closeFileForOutput(filePath);
         std::cout << "Records added" << std::endl;
 
         //this->fileHandler.readReinterpretWrite(filePath, "out\\test.bin");
