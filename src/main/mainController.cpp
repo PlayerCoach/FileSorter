@@ -2,9 +2,9 @@
 
 mainController::mainController() 
 { 
-    this->filePath  = OUTPUT_FOLDER + "\\output.bin";
-    fileHandler.clearFile(filePath);
-    fileHandler.clearFile("out\\test.bin");
+    this->filePath  = OUTPUT_FOLDER + "\\input.bin";
+    // fileHandler.clearFile(filePath);
+    // fileHandler.clearFile("out\\input.bin");
     printMenu();
     bool running = true;
     while(running)
@@ -65,27 +65,29 @@ bool mainController::interpretUserInput(std::vector<std::string> tokens)
        try
        {
         int numberOfRecords = stoi(tokens[1]);
-        std::cout<<numberOfRecords<<std::endl;
         std::cout<< "Adding " << numberOfRecords << " records to the file" << std::endl;
         this->fileHandler.openFileForOutput(filePath);
         for (int i = 0; i < numberOfRecords; i++)
         {
             Record record;
-            std::cout<< record << std::endl;
+            //std::cout<< record << std::endl;
             this->fileHandler.writeRecordToFile(filePath, record);
         }
         this->fileHandler.closeFileForOutput(filePath);
         std::cout << "Records added" << std::endl;
 
-        //this->fileHandler.readReinterpretWrite(filePath, "out\\test.bin");
-        //this->fileHandler.readWriteBlock(filePath, "out\\test.bin");
-        //this->fileHandler.displayFile("out\\test.bin");
+        
+        //this->fileHandler.readWriteBlock(filePath, MAIN_OUTPUT);
+        // this->fileHandler.displayFile(filePath);
+        // std::cout << "*****************" << std::endl;
+        // this->fileHandler.displayFile(MAIN_OUTPUT);
+
         Sorter sorter;
         std::unique_ptr<SortingStrategy> naturalMergeSort = std::make_unique<NaturalMergeSort>(&fileHandler, filePath);
         sorter.setStrategy(std::move(naturalMergeSort));
         sorter.sort();
         std::cout << "*****************" << std::endl;
-        this->fileHandler.displayFile(MAIN_OUTPUT);
+        //this->fileHandler.displayFile(MAIN_OUTPUT);
        }
        catch(const std::exception& e)
        {

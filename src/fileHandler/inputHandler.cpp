@@ -151,5 +151,5 @@ std::optional<Record> inputHandler::readRecordFromBuffer()
 }
 bool inputHandler::allFilesRead() const
 {
-    return this->eof && this->readBufferIndex >= this->readBufferSize;
+    return this->eof && (this->readBufferIndex >= this->readBufferSize);
 }
