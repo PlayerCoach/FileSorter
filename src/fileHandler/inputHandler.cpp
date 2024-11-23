@@ -103,6 +103,7 @@ bool inputHandler::reloadBuffer()
     }
 
     this->readBlockFromFile();
+    this->bufferReadCount++;
 
     return this->readBufferSize > 0;
 }
@@ -143,6 +144,11 @@ bool inputHandler::allFilesRead() const
 const int inputHandler::getReadNumber() const
 {
     return this->readNumber;
+}
+
+const int inputHandler::getBufferReadCount() const
+{
+    return this->bufferReadCount;
 }
 
 void inputHandler::closeFile()

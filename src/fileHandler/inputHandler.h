@@ -10,6 +10,7 @@ class inputHandler
 {
 private:
     std::string fileName;
+    int bufferReadCount = 0;
 
     std::ifstream file;
     int readNumber = 0;
@@ -31,6 +32,7 @@ public:
     std::optional<Record> readRecordFromBuffer();
     bool allFilesRead() const;
     const int getReadNumber() const;
+    const int getBufferReadCount() const;
     void closeFile();
 
 };

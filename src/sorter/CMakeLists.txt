@@ -1,6 +1,7 @@
 add_library(SorterLib
 sorter.cpp
-sortingAlgorithms/naturalMergeSort.cpp)
+sortingAlgorithms/naturalMergeSort.cpp
+sortingAlgorithms/mergeWithLargeBuffersSort.cpp)
 include_directories(sortingAlgorithms)
 target_include_directories(SorterLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}) 
 target_include_directories(SorterLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ../const)

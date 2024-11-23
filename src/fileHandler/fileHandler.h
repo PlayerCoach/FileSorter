@@ -35,6 +35,7 @@ public:
     int getReadNumber(const std::string& fileName) const;
     int getWriteNumber(const std::string& fileName) const;
     int getNumberOfActiveFiles() const;
+    const int getBufferReadCount(const std::string& fileName) const;
 
 
 };

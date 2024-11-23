@@ -7,6 +7,7 @@
 #include <sstream>
 #include "sorter.h"
 #include "naturalMergeSort.h"
+#include "MergeWithLargeBuffersSort.h"
 #include "sortingStrategy.h"
 #include "outputFileNames.h"
 

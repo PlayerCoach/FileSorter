@@ -70,7 +70,7 @@ bool mainController::interpretUserInput(std::vector<std::string> tokens)
         for (int i = 0; i < numberOfRecords; i++)
         {
             Record record;
-            //std::cout<< record << std::endl;
+            std::cout<< record << std::endl;
             this->fileHandler.writeRecordToFile(filePath, record);
         }
         this->fileHandler.closeFileForOutput(filePath);
@@ -84,9 +84,11 @@ bool mainController::interpretUserInput(std::vector<std::string> tokens)
 
         Sorter sorter;
         std::unique_ptr<SortingStrategy> naturalMergeSort = std::make_unique<NaturalMergeSort>(&fileHandler, filePath);
-        sorter.setStrategy(std::move(naturalMergeSort));
-        sorter.sort();
+        std::unique_ptr<SortingStrategy> largeBufferSort = std::make_unique<LargeBufferSort>(&fileHandler, filePath);
+        sorter.setStrategy(std::move(largeBufferSort));
+        
         std::cout << "*****************" << std::endl;
+        sorter.sort();
         //this->fileHandler.displayFile(MAIN_OUTPUT);
        }
        catch(const std::exception& e)

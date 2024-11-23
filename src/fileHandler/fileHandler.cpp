@@ -218,3 +218,15 @@ int fileHandler::getWriteNumber(const std::string& fileName) const {
 int fileHandler::getNumberOfActiveFiles() const {
     return this->inputHandlers.size() + this->outputHandlers.size();
 }
+
+const int fileHandler::getBufferReadCount(const std::string& fileName) const {
+    try
+    {
+        return this->inputHandlers.at(fileName)->getBufferReadCount();
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+    }
+    
+}
