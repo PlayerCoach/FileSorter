@@ -14,8 +14,8 @@ void NaturalMergeSort::sort() {
         // this->IOhandler->displayFile(TEMP_OUTPUT1);
         // std::cout<< "TEMP OUTPUT 2" << std::endl;
         // this->IOhandler->displayFile(TEMP_OUTPUT2);
-         std::cout<< "MAIN OUTPUT" << std::endl;
-         this->IOhandler->displayFile(MAIN_OUTPUT);
+         //std::cout<< "MAIN OUTPUT" << std::endl;
+         //this->IOhandler->displayFile(MAIN_OUTPUT);
     } 
     this->IOhandler->displayFile(sortedFile.value());
     //change name of sorted file
@@ -25,8 +25,8 @@ void NaturalMergeSort::sort() {
     // std::filesystem::remove(TEMP_OUTPUT1);
     // std::filesystem::remove(TEMP_OUTPUT2);
 
-    // std::cout << "Read number: " << this->readNumber << std::endl;
-    // std::cout << "Write number: " << this->writeNumber << std::endl;
+    std::cout << "Read number: " << this->readNumber << std::endl;
+    std::cout << "Write number: " << this->writeNumber << std::endl;
 
     // std::cout << "Number of active files: " << this->IOhandler->getNumberOfActiveFiles() << std::endl;
 
@@ -58,7 +58,7 @@ void NaturalMergeSort::initNaturalMergeSort() {
             exit(1);
         }
 
-       if (currentRecord.value() < prevrecord.value()) {
+       if (currentRecord.value() > prevrecord.value()) {
             currentOutputFile = (currentOutputFile == TEMP_OUTPUT1) ? TEMP_OUTPUT2 : TEMP_OUTPUT1;
         }       
         this->IOhandler->writeRecordToBuffer(currentOutputFile, currentRecord.value());
@@ -99,7 +99,7 @@ void NaturalMergeSort::merge() {
             // Second file is empty, write from first file
             this->IOhandler->writeRecordToBuffer(MAIN_OUTPUT, recordFromFirstFile.value());
             recordFromFirstFile = this->IOhandler->readRecordFromBuffer(TEMP_OUTPUT1);
-        } else if (recordFromFirstFile.value() < recordFromSecondFile.value()) {
+        } else if (recordFromFirstFile.value() > recordFromSecondFile.value()) {
             // Write smaller value to output
             this->IOhandler->writeRecordToBuffer(MAIN_OUTPUT, recordFromFirstFile.value());
             recordFromFirstFile = this->IOhandler->readRecordFromBuffer(TEMP_OUTPUT1);
@@ -147,7 +147,7 @@ std::optional<std::string> NaturalMergeSort::divide() {
             exit(1);
         }
 
-        if(currentRecord.value() < prevrecord.value())
+        if(currentRecord.value() > prevrecord.value())
         {
             isSorted = false;
             currentOutputFile = (currentOutputFile == TEMP_OUTPUT1) ? TEMP_OUTPUT2 : TEMP_OUTPUT1;

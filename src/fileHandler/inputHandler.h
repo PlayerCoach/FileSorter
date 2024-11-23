@@ -21,14 +21,17 @@ private:
     bool eof = false;
 
     void readBlockFromFile();
+    std::optional<int32_t> readNextInt();
+    bool reloadBuffer();
+
 public:
     inputHandler();
-    std::optional<Record> readRecordFromFile();
     void openFile(std::string fileName);
-    void closeFile();
-    const int getReadNumber() const;
+    std::optional<Record> readRecordFromFile();
     std::optional<Record> readRecordFromBuffer();
     bool allFilesRead() const;
+    const int getReadNumber() const;
+    void closeFile();
 
 };
 

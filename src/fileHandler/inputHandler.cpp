@@ -1,9 +1,22 @@
 #include "inputHandler.h"
 
 inputHandler::inputHandler() {}
+
+void inputHandler::openFile(std::string fileName)
+{
+    this->file.open(fileName, std::ios::in | std::ios::binary);
+    if (!file.is_open())
+    {
+        std::cerr << "Error: Could not open file " << fileName << std::endl;
+        exit(1);
+    }
+    this->fileName = fileName;
+
+    
+}
+
 std::optional<Record> inputHandler::readRecordFromFile() 
 {
-    
     if(!this->file.is_open())
     {
         std::cerr << "Error: File not open" << std::endl;
@@ -53,52 +66,53 @@ void inputHandler::readBlockFromFile()
     {
         std::cerr << "Error: File not open" << std::endl;
         this->readBufferSize = 0;
+        this->eof = true;
+        return;
     }
+
     this->file.seekg(this->fileIndex);
     this->file.read(this->readBuffer, BUFFER_SIZE);
-    this->readNumber++;
     std::streamsize bytesRead = this->file.gcount();
-    
     this->fileIndex = file.tellg();
-    if (this->fileIndex == -1) 
-    {
-        this->fileIndex = 0;
-        this->eof = true;
-    }
+  
+    this->readNumber++;
 
-     if (bytesRead == 0) // Nothing was read
-    {
-        this->eof = true;
-        this->readBufferSize = 0;
-    }
+    this->eof = (bytesRead < BUFFER_SIZE) || (this->file.peek() == EOF) || (this->fileIndex == -1);
 
-    if (bytesRead < BUFFER_SIZE)
-    {
-        this->readBufferSize = static_cast<int>(bytesRead);
-    }
-}
-
-void inputHandler::openFile(std::string fileName)
-{
-    this->file.open(fileName, std::ios::in | std::ios::binary);
-    if (!file.is_open())
-    {
-        std::cerr << "Error: Could not open file " << fileName << std::endl;
-        exit(1);
-    }
-    this->fileName = fileName;
-
-    
-}
-
-void inputHandler::closeFile()
-{
-    this->file.close();
+    this->readBufferSize = static_cast<int>(bytesRead);
+    this->readBufferIndex = 0;
 }
 
 const int inputHandler::getReadNumber() const
 {
     return this->readNumber;
+}
+
+std::optional<int32_t> inputHandler::readNextInt()
+{
+     if (this->readBufferIndex + sizeof(int32_t) > this->readBufferSize) {
+        if (!this->reloadBuffer()) {
+            std::cerr << "Error: Not enough data to read integer" << std::endl;
+            return std::nullopt;
+        }
+    }
+
+    int32_t value;
+    std::memcpy(&value, this->readBuffer + this->readBufferIndex, sizeof(int32_t));
+    this->readBufferIndex += sizeof(int32_t);
+    return value;
+}
+
+bool inputHandler::reloadBuffer()
+{
+   if (this->allFilesRead()) 
+   {
+        return false;
+    }
+
+    this->readBlockFromFile();
+
+    return this->readBufferSize > 0;
 }
 
 std::optional<Record> inputHandler::readRecordFromBuffer()
@@ -109,47 +123,32 @@ std::optional<Record> inputHandler::readRecordFromBuffer()
         return std::nullopt;
     }
 
-    if (this->readBufferIndex == this->readBufferSize) {
-        this->readBufferSize = BUFFER_SIZE;
-        this->readBlockFromFile();
-        this->readBufferIndex = 0;
-    }
-
-
-    int32_t size;
-    if (this->readBufferIndex + sizeof(int32_t) > this->readBufferSize) {
-        std::cerr << "Error: Not enough data to read size" << std::endl;
+    auto sizeOpt = this->readNextInt();
+    if (!sizeOpt.has_value()) {
         return std::nullopt;
     }
 
-    std::memcpy(&size, this->readBuffer + this->readBufferIndex, sizeof(int32_t));
-    this->readBufferIndex += sizeof(int32_t);
-
+    int32_t size = sizeOpt.value();
+  
     std::vector<int32_t> mainBuffer;
+    mainBuffer.reserve(size);
 
     for (int i = 0; i < size; i++) {
-        if (this->readBufferIndex + sizeof(int32_t) > this->readBufferSize) 
-        {
-            this->readBufferSize = BUFFER_SIZE;
-            this->readBufferIndex = 0;
-            this->readBlockFromFile();
-
-            if(this->readBufferSize == 0)
-            {
-                std::cerr << "Error: Not enough data to read number" << std::endl;
-                return std::nullopt;
-            }
+        auto numberOpt = this->readNextInt();
+        if (!numberOpt.has_value()) {
+            return std::nullopt;
         }
-
-        int32_t number;
-        std::memcpy(&number, this->readBuffer + this->readBufferIndex, sizeof(int32_t));
-        this->readBufferIndex += sizeof(int32_t);
-        mainBuffer.push_back(number);
+        mainBuffer.push_back(numberOpt.value());
     }
-    //std::cout << Record(mainBuffer) << std::endl;
     return Record(mainBuffer);
 }
+
 bool inputHandler::allFilesRead() const
 {
     return this->eof && (this->readBufferIndex >= this->readBufferSize);
+}
+
+void inputHandler::closeFile()
+{
+    this->file.close();
 }
