@@ -45,9 +45,11 @@ void NaturalMergeSort::initNaturalMergeSort() {
         currentRecord = this->IOhandler->readRecordFromBuffer(inputFile);
         if(!currentRecord.has_value())
         {
+            /* MAIN ERROR IS SOMEWHERE HERE*/
+            /*Error: Not enough data to read size*/
             std::cout << "Unexpected end of file" << std::endl;
             std::cout << "Counter: " << counter << std::endl;
-            exit(1);
+            exit(1); 
         }
 
        if (currentRecord.value() < prevrecord.value()) {
@@ -79,7 +81,7 @@ void NaturalMergeSort::merge() {
     std::optional<Record> recordFromFirstFile = this->IOhandler->readRecordFromBuffer(TEMP_OUTPUT1);
     std::optional<Record> recordFromSecondFile = this->IOhandler->readRecordFromBuffer(TEMP_OUTPUT2);
 
-    while(!this->IOhandler->allFilesRead(TEMP_OUTPUT1) && !this->IOhandler->allFilesRead(TEMP_OUTPUT2))
+    while(!this->IOhandler->allFilesRead(TEMP_OUTPUT1) || !this->IOhandler->allFilesRead(TEMP_OUTPUT2))
     {
         if(!recordFromFirstFile.has_value() && !recordFromSecondFile.has_value())
         {
@@ -107,6 +109,7 @@ void NaturalMergeSort::merge() {
             recordFromSecondFile = this->IOhandler->readRecordFromBuffer(TEMP_OUTPUT2);
         }
     }
+
 
     this->IOhandler->flushWriteBuffer(MAIN_OUTPUT);
     this->readNumber += this->IOhandler->getReadNumber(TEMP_OUTPUT1) + this->IOhandler->getReadNumber(TEMP_OUTPUT2);
