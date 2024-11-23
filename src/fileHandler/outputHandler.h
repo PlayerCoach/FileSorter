@@ -18,13 +18,14 @@ private:
     int writeBufferIndex= 0;
 
     void writeBlockToFile();
+    void writeIntToBuffer(int32_t value);
 public:
     outputHandler();
+    void openFile(const std::string& fileName, const std::string& mode = "truncate");
     void writeRecordToFile(const Record& record);
-    void openFile(const std::string& fileName);
-    void closeFile();
-    int getWriteNumber() const;
     void writeRecordToBuffer(const Record& record);
+    const int getWriteNumber() const;
     void flushBuffer();
+    void closeFile();
 
 };

@@ -11,8 +11,6 @@ void inputHandler::openFile(std::string fileName)
         exit(1);
     }
     this->fileName = fileName;
-
-    
 }
 
 std::optional<Record> inputHandler::readRecordFromFile() 
@@ -57,7 +55,6 @@ std::optional<Record> inputHandler::readRecordFromFile()
     }
 
     return Record(mainBuffer);
-
 }
 
 void inputHandler::readBlockFromFile()
@@ -81,11 +78,6 @@ void inputHandler::readBlockFromFile()
 
     this->readBufferSize = static_cast<int>(bytesRead);
     this->readBufferIndex = 0;
-}
-
-const int inputHandler::getReadNumber() const
-{
-    return this->readNumber;
 }
 
 std::optional<int32_t> inputHandler::readNextInt()
@@ -146,6 +138,11 @@ std::optional<Record> inputHandler::readRecordFromBuffer()
 bool inputHandler::allFilesRead() const
 {
     return this->eof && (this->readBufferIndex >= this->readBufferSize);
+}
+
+const int inputHandler::getReadNumber() const
+{
+    return this->readNumber;
 }
 
 void inputHandler::closeFile()
