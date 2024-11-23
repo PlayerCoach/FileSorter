@@ -2,7 +2,7 @@
  
 void NaturalMergeSort::sort() {
     initNaturalMergeSort();
-    merge();
+    // merge();
     std::optional<std::string> sortedFile = std::nullopt;
     while(true)
     {
@@ -10,6 +10,12 @@ void NaturalMergeSort::sort() {
         sortedFile = divide();
         if(sortedFile.has_value())
             break;
+        // std::cout<< "TEMP OUTPUT 1" << std::endl;
+        // this->IOhandler->displayFile(TEMP_OUTPUT1);
+        // std::cout<< "TEMP OUTPUT 2" << std::endl;
+        // this->IOhandler->displayFile(TEMP_OUTPUT2);
+         std::cout<< "MAIN OUTPUT" << std::endl;
+         this->IOhandler->displayFile(MAIN_OUTPUT);
     } 
     this->IOhandler->displayFile(sortedFile.value());
     //change name of sorted file
@@ -141,7 +147,7 @@ std::optional<std::string> NaturalMergeSort::divide() {
             exit(1);
         }
 
-        if(currentRecord.value() > prevrecord.value())
+        if(currentRecord.value() < prevrecord.value())
         {
             isSorted = false;
             currentOutputFile = (currentOutputFile == TEMP_OUTPUT1) ? TEMP_OUTPUT2 : TEMP_OUTPUT1;
