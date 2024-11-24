@@ -70,7 +70,7 @@ bool mainController::interpretUserInput(std::vector<std::string> tokens)
         for (int i = 0; i < numberOfRecords; i++)
         {
             Record record;
-            std::cout<< record << std::endl;
+            //std::cout<< record << std::endl;
             this->fileHandler.writeRecordToFile(filePath, record);
         }
         this->fileHandler.closeFileForOutput(filePath);
