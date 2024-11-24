@@ -72,7 +72,7 @@ void NaturalMergeSort::initNaturalMergeSort() {
     this->readNumber += this->IOhandler->getReadNumber(inputFile);
     this->writeNumber += this->IOhandler->getWriteNumber(TEMP_OUTPUT1) + this->IOhandler->getWriteNumber(TEMP_OUTPUT2);
 
-    this->IOhandler->closeFileForInput(inputFile);
+    this->IOhandler->finalizeFileForInput(inputFile);
     this->IOhandler->closeFileForOutput(TEMP_OUTPUT1);
     this->IOhandler->closeFileForOutput(TEMP_OUTPUT2); 
 
@@ -115,8 +115,8 @@ void NaturalMergeSort::merge() {
     this->readNumber += this->IOhandler->getReadNumber(TEMP_OUTPUT1) + this->IOhandler->getReadNumber(TEMP_OUTPUT2);
     this->writeNumber += this->IOhandler->getWriteNumber(MAIN_OUTPUT);
 
-    this->IOhandler->closeFileForInput(TEMP_OUTPUT1);
-    this->IOhandler->closeFileForInput(TEMP_OUTPUT2);
+    this->IOhandler->finalizeFileForInput(TEMP_OUTPUT1);
+    this->IOhandler->finalizeFileForInput(TEMP_OUTPUT2);
     this->IOhandler->closeFileForOutput(MAIN_OUTPUT);
 }
 
@@ -161,7 +161,7 @@ std::optional<std::string> NaturalMergeSort::divide() {
     this->readNumber += this->IOhandler->getReadNumber(MAIN_OUTPUT);
     this->writeNumber += this->IOhandler->getWriteNumber(TEMP_OUTPUT1) + this->IOhandler->getWriteNumber(TEMP_OUTPUT2);
 
-    this->IOhandler->closeFileForInput(MAIN_OUTPUT);
+    this->IOhandler->finalizeFileForInput(MAIN_OUTPUT);
     this->IOhandler->closeFileForOutput(TEMP_OUTPUT1);
     this->IOhandler->closeFileForOutput(TEMP_OUTPUT2);
 

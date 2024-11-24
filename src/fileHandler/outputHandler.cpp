@@ -9,10 +9,23 @@ void outputHandler::openFile(const std::string& fileName, const std::string& mod
     else
     this->file.open(fileName, std::ios::binary); 
 
-    if(!this->file.is_open())
+    if (!file.is_open())
     {
-        std::cout << "Error opening file" << std::endl;
-        return;
+        std::cerr << "Error: Could not open file " << fileName << std::endl;
+        char buffer[256];
+        strerror_s(buffer, sizeof(buffer), errno);
+        std::cerr << "Reason: " << buffer << std::endl;
+
+        // Additional debugging info
+        std::ifstream test(fileName);
+        if (!test.is_open()) {
+            std::cerr << "File does not exist or is inaccessible." << std::endl;
+        } else {
+            std::cerr << "File exists, but there may be permission issues or it's locked." << std::endl;
+        }
+        test.close();
+
+        exit(1);
     }
     this->fileName = fileName;
 }
@@ -52,7 +65,6 @@ void outputHandler::writeRecordToBuffer(const Record& record)
 {
     
     writeIntToBuffer(static_cast<int32_t>(record.getSeries().size()));
-
 
     for(int number : record.getSeries())
     {

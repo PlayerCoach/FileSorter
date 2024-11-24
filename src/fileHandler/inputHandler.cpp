@@ -8,8 +8,9 @@ void inputHandler::openFile(std::string fileName)
     if (!file.is_open())
     {
         std::cerr << "Error: Could not open file " << fileName << std::endl;
-        std::cerr << "Reason: " << std::strerror(errno) << std::endl;
-
+        char buffer[256];
+        strerror_s(buffer, sizeof(buffer), errno);
+        std::cerr << "Reason: " << buffer << std::endl;
         // Additional debugging info
         std::ifstream test(fileName);
         if (!test.is_open()) {
@@ -39,7 +40,7 @@ std::optional<Record> inputHandler::readRecordFromFile()
 
     if (this->file.eof())
     {
-        std::cout<<"EOF "<<std::endl;
+        std::cout<<"**********EOF**********"<<std::endl;
         return std::nullopt; // EOF or read failure
     }
 
@@ -49,7 +50,7 @@ std::optional<Record> inputHandler::readRecordFromFile()
         return std::nullopt;
     }
 
-    std::vector <int> mainBuffer;
+    std::vector <int32_t> mainBuffer;
     int32_t number;
 
     for(int i = 0; i < size; i++)
@@ -157,11 +158,6 @@ const int inputHandler::getReadNumber() const
     return this->readNumber;
 }
 
-const int inputHandler::getBufferReadCount() const
-{
-    return this->bufferReadCount;
-}
-
 // Returns the size of the next record in the buffer without moving the read index but with reloading buffer if necessary
 const std::optional<int32_t> inputHandler::peekNextSize() 
 {
@@ -171,8 +167,8 @@ const std::optional<int32_t> inputHandler::peekNextSize()
     }
     
     if (this->readBufferIndex + sizeof(int32_t) > this->readBufferSize) {
-         if (!this->reloadBuffer()) {
-            //std::cerr << "Error: Not enough data to read integer" << std::endl;
+         if (!this->reloadBuffer()) 
+        {
             return std::nullopt;
         }
     }
@@ -188,7 +184,7 @@ const std::optional<int32_t> inputHandler::peekNextSizeInBytes()
     if (!sizeOpt.has_value()) {
         return std::nullopt;
     }
-    return sizeOpt.value() * sizeof(int32_t) + sizeof(int32_t); // change later to something more general
+    return static_cast<int32_t>(sizeOpt.value() * sizeof(int32_t) + sizeof(int32_t));
 }
 
 void inputHandler::closeFile()

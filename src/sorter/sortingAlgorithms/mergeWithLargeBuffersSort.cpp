@@ -51,7 +51,7 @@ void LargeBufferSort::createRuns() {
         tapeIndex++;
     }
     this->readNumber += this->IOhandler->getReadNumber(this->inputFile);
-    this->IOhandler->closeFileForInput(this->inputFile);
+    this->IOhandler->finalizeFileForInput(this->inputFile);
 }
 
 bool LargeBufferSort::readBuffers(std::vector<Record>& records)
@@ -131,7 +131,8 @@ bool LargeBufferSort::mergeNTapes(int startTapeIndex, std::vector<std::string>& 
     // Priority queue (max heap) to merge records incrementally
     std::priority_queue<std::pair<Record, int>, std::vector<std::pair<Record, int>>, decltype(compare)> maxHeap(compare);
 
-    for (int i = startTapeIndex; i < startTapeIndex + this->numberOfBuffersToRead; i++) {
+    for (int i = startTapeIndex; i < startTapeIndex + this->numberOfBuffersToRead; i++) 
+    {
         if (i >= this->tapes.size()) {
             hasReadAll = true;
             break;
@@ -142,15 +143,17 @@ bool LargeBufferSort::mergeNTapes(int startTapeIndex, std::vector<std::string>& 
 
         // Read the first record from the tape
         std::optional<Record> record = this->IOhandler->readRecordFromBuffer(tapeName);
-        if (record.has_value()) {
+        if (record.has_value()) 
+        {
             maxHeap.push({record.value(), i});  // Store record and index of tape
         }
-        this->IOhandler->temporaryCloseFile(tapeName);
+        this->IOhandler->closeFileForInput(tapeName);
     }
 
     // Determine output tape name
     std::string outputTape;
-    if (changeBaseName) {
+    if (changeBaseName)
+    {
         outputTape = TEMP_TAPE_BASE + std::to_string(iterator) + ".bin";
     } else {
         outputTape = TAPE_BASE + std::to_string(iterator) + ".bin";
@@ -171,13 +174,13 @@ bool LargeBufferSort::mergeNTapes(int startTapeIndex, std::vector<std::string>& 
         std::string tapeName = this->tapes[tapeIndex];
         this->IOhandler->openFileForInput(tapeName);
         std::optional<Record> nextRecord = this->IOhandler->readRecordFromBuffer(tapeName);
-        this->IOhandler->temporaryCloseFile(tapeName);
+        this->IOhandler->closeFileForInput(tapeName);
         if (nextRecord.has_value()) {
             maxHeap.push({nextRecord.value(), tapeIndex});
         } else {
             // Close the input tape if no more records are left
             this->readNumber += this->IOhandler->getReadNumber(tapeName);
-            this->IOhandler->closeFileForInput(tapeName);
+            this->IOhandler->finalizeFileForInput(tapeName);
         }
     }
 
@@ -202,38 +205,6 @@ void LargeBufferSort::deleteFiles(std::vector<std::string> files)
 
 
 
-// bool LargeBufferSort::mergeNTapes(int startTapeIndex, std::vector<std::string>& newTapes, int iterator, bool changeBaseName)
-// {
-//     //make heap with touple , file name and record
-//     //mnake initial loop when i read one record from n-1 tapes
-//     //then when poping max fro mthe heap i write the record to output file and read new record from the max file
-//     // if maks file is empty idk guess the heap has less elements then
-//     for(int i = startTapeIndex; i < startTapeIndex + this->numberOfBuffersToRead; i++)
-//     {
-// 
-//         while(record.has_value())
-//         {
-//             record = this->IOhandler->readRecordFromBuffer(tapeName);
-//         }
-//         this->writeNumber += this->IOhandler->getWriteNumber(tapeName);
-//         this->IOhandler->closeFileForInput(tapeName);
-
-//     }
-
-//     while(!maxHeap.empty())
-//     {
-//         Record record = maxHeap.top();
-//         maxHeap.pop();
-//         this->IOhandler->writeRecordToBuffer(outputTape, record);
-//     }
-//     this->IOhandler->flushWriteBuffer(outputTape);
-//     this->readNumber += this->IOhandler->getReadNumber(outputTape);
-//     this->IOhandler->closeFileForOutput(outputTape);
-
-//     newTapes.push_back(outputTape);
-//     return hasReadAll;
-
-// }
 
 
 
@@ -247,22 +218,3 @@ void LargeBufferSort::deleteFiles(std::vector<std::string> files)
 
 
 
-
-
-/* Version using bytes to determine buffer size, not ideal*/
-// bool LargeBufferSort::readBuffers(std::vector<Record>& records)
-// {
-//     int initialReadBufferCount = this->IOhandler->getBufferReadCount(this->inputFile); 
-//     int currentReadBufferCount = initialReadBufferCount;
-//     while (currentReadBufferCount - initialReadBufferCount <= this->numberOfBuffersToRead) {
-//         std::optional<Record> record = this->IOhandler->readRecordFromBuffer(this->inputFile);
-//         if (!record.has_value()) {
-//             return false;
-//             break;
-//         }
-
-//         records.push_back(record.value());
-//         currentReadBufferCount = this->IOhandler->getBufferReadCount(this->inputFile);
-//     }
-//     return true;
-// } 

@@ -2,13 +2,29 @@
 
 fileHandler::fileHandler() 
 {
-    //create folder
+    
     if (!std::filesystem::exists(OUTPUT_FOLDER))
     {
         std::filesystem::create_directory(OUTPUT_FOLDER);
         std::cout << "Output folder created" << std::endl;
     }
+
+    // if exists clear the folder
+    else
+    {
+        std::filesystem::remove_all(OUTPUT_FOLDER);
+        std::filesystem::create_directory(OUTPUT_FOLDER);
+        std::cout << "Output folder cleared" << std::endl;
+    }
     
+}
+
+void fileHandler::createFolder(const std::string& folderName) {
+    if (!std::filesystem::exists(folderName))
+    {
+        std::string fullFolderPath = OUTPUT_FOLDER + "/" + folderName;
+        std::filesystem::create_directory(fullFolderPath);
+    }
 }
 
 std::optional<Record> fileHandler::readRecordFromFile(const std::string& fileName) {
@@ -37,12 +53,6 @@ void fileHandler::writeRecordToFile(const std::string& fileName, const Record& r
     
 }
 
-void fileHandler::clearFile(const std::string& fileName) {
-    std::ofstream file;
-    file.open(fileName, std::ios::trunc);
-    file.close();
-}
-
 void fileHandler::openFileForInput(const std::string& fileName) {
     try
     {
@@ -60,7 +70,21 @@ void fileHandler::openFileForInput(const std::string& fileName) {
 void fileHandler::closeFileForInput(const std::string& fileName) {
     try
     {
-        // add file is open later on
+        this->inputHandlers.at(fileName)->closeFile();
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+    }
+    
+}
+
+void fileHandler::finalizeFileForInput(const std::string& fileName) {
+    try
+    {
+        if(this->inputHandlers.find(fileName) == this->inputHandlers.end())
+            throw std::runtime_error("File not open");
+        
         this->inputHandlers.at(fileName)->closeFile();
         this->inputHandlers.erase(fileName);
     }
@@ -89,6 +113,8 @@ void fileHandler::openFileForOutput(const std::string& fileName) {
 void fileHandler::closeFileForOutput(const std::string& fileName) {
     try
     {
+        if(this->outputHandlers.find(fileName) == this->outputHandlers.end())
+            throw std::runtime_error("File not open");
         this->outputHandlers.at(fileName)->closeFile();
         this->outputHandlers.erase(fileName);
     }
@@ -97,40 +123,6 @@ void fileHandler::closeFileForOutput(const std::string& fileName) {
         std::cerr << e.what() << '\n';
     }
     
-}
-
-void fileHandler::readReinterpretWrite(const std::string& inputFileName, const std::string& outputFileName) {
-    openFileForInput(inputFileName);
-    openFileForOutput(outputFileName);
-    std::optional<Record> record;
-   while ((record = readRecordFromFile(inputFileName)) != std::nullopt)
-    {
-        std::cout << record.value() << std::endl;
-        writeRecordToFile(outputFileName, record.value());
-    }
-    std::cout<< "Write numbers: " <<  this->outputHandlers[outputFileName]->getWriteNumber() << std::endl;
-    closeFileForInput(inputFileName);
-    closeFileForOutput(outputFileName);
-}
-
-void fileHandler::readWriteBlock(const std::string& inputFileName, const std::string& outputFileName) {
-    openFileForInput(inputFileName);
-    openFileForOutput(outputFileName);
-
-    std::optional<Record> record;
-    while (!inputHandlers[inputFileName]->allFilesRead())
-    {
-        record = readRecordFromBuffer(inputFileName);
-        writeRecordToBuffer(outputFileName, record.value());
-
-       
-    }
-    flushWriteBuffer(outputFileName);
-    std::cout<< "Read number" << inputHandlers[inputFileName]->getReadNumber() << std::endl;
-    std::cout<< "Write number" << outputHandlers[outputFileName]->getWriteNumber() << std::endl;
-
-    closeFileForInput(inputFileName);
-    closeFileForOutput(outputFileName);
 }
 
 void fileHandler::writeRecordToBuffer(const std::string& fileName, const Record& record) {
@@ -176,7 +168,7 @@ void fileHandler::displayFile(const std::string& fileName) {
     {
         std::cout << record.value() << std::endl;
     }
-    closeFileForInput(fileName);
+    finalizeFileForInput(fileName);
 }
 
 bool fileHandler::allFilesRead(const std::string& fileName) {
@@ -191,7 +183,7 @@ bool fileHandler::allFilesRead(const std::string& fileName) {
     
 }
 
-int fileHandler::getReadNumber(const std::string& fileName) const {
+const int fileHandler::getReadNumber(const std::string& fileName) const {
     try
     {
         return this->inputHandlers.at(fileName)->getReadNumber();
@@ -199,11 +191,13 @@ int fileHandler::getReadNumber(const std::string& fileName) const {
     catch(const std::exception& e)
     {
         std::cerr << e.what() << '\n';
+        return 0;
     }
+
     
 }
 
-int fileHandler::getWriteNumber(const std::string& fileName) const {
+const int fileHandler::getWriteNumber(const std::string& fileName) const {
     try
     {
         return this->outputHandlers.at(fileName)->getWriteNumber();
@@ -211,24 +205,14 @@ int fileHandler::getWriteNumber(const std::string& fileName) const {
     catch(const std::exception& e)
     {
         std::cerr << e.what() << '\n';
+        return 0;
+
     }
     
 }
 
-int fileHandler::getNumberOfActiveFiles() const {
-    return this->inputHandlers.size() + this->outputHandlers.size();
-}
-
-const int fileHandler::getBufferReadCount(const std::string& fileName) const {
-    try
-    {
-        return this->inputHandlers.at(fileName)->getBufferReadCount();
-    }
-    catch(const std::exception& e)
-    {
-        std::cerr << e.what() << '\n';
-    }
-    
+const int fileHandler::getNumberOfActiveFiles() const {
+    return static_cast<int>(this->inputHandlers.size() + this->outputHandlers.size());
 }
 
 const std::optional<int32_t> fileHandler::peekNextSize(const std::string& fileName) {
@@ -239,6 +223,7 @@ const std::optional<int32_t> fileHandler::peekNextSize(const std::string& fileNa
     catch(const std::exception& e)
     {
         std::cerr << e.what() << '\n';
+        return std::nullopt;
     }
     
 }
@@ -251,18 +236,20 @@ const std::optional<int32_t> fileHandler::peekNextSizeInBytes(const std::string&
     catch(const std::exception& e)
     {
         std::cerr << e.what() << '\n';
+        return std::nullopt;
     }
     
 }
 
-void fileHandler::temporaryCloseFile(const std::string& fileName) {
-    try
-    {
-        this->inputHandlers.at(fileName)->closeFile();
+void fileHandler::saveCurrentOutputDirState(const std::string& outputDirStateFolderName) {
+    this->createFolder(outputDirStateFolderName);
+
+    for (const auto& entry : std::filesystem::directory_iterator(OUTPUT_FOLDER)) {
+        if (entry.is_regular_file()) { // Check if it's a file
+            std::filesystem::copy(
+                entry.path(),
+                std::filesystem::path(outputDirStateFolderName) / entry.path().filename()
+            );
+        }
     }
-    catch(const std::exception& e)
-    {
-        std::cerr << e.what() << '\n';
-    }
-    
 }

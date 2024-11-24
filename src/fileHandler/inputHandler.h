@@ -19,7 +19,7 @@ private:
     int readNumber = 0;
     std::streampos fileIndex = 0;
 
-    char readBuffer[BUFFER_SIZE]; // buffer for reading from file
+    char readBuffer[BUFFER_SIZE]; // buffer for reading from file maby change it for disk or smth
     int readBufferSize = BUFFER_SIZE;
     int readBufferIndex  = BUFFER_SIZE; // symbolizes that the buffer is empty
     bool eof = false;
@@ -35,7 +35,6 @@ public:
     std::optional<Record> readRecordFromBuffer();
     bool allFilesRead() const;
     const int getReadNumber() const;
-    const int getBufferReadCount() const;
     const std::optional<int32_t> peekNextSize();
     const std::optional<int32_t> peekNextSizeInBytes();
     void closeFile();

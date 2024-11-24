@@ -18,27 +18,25 @@ private:
     std::unordered_map<std::string, std::unique_ptr<outputHandler>> outputHandlers;
 public:
     fileHandler();
+    void createFolder(const std::string& folderName);
     std::optional<Record> readRecordFromFile(const std::string& fileName);
     void writeRecordToFile(const std::string& fileName, const Record& content);
-    void clearFile(const std::string& fileName);
     void openFileForInput(const std::string& fileName);   
     void closeFileForInput(const std::string& fileName);
+    void finalizeFileForInput(const std::string& fileName);
     void openFileForOutput(const std::string& fileName);
     void closeFileForOutput(const std::string& fileName);
-    void readReinterpretWrite(const std::string& inputFileName, const std::string& outputFileName);
-    void readWriteBlock(const std::string& inputFileName, const std::string& outputFileName);
     void writeRecordToBuffer(const std::string& fileName, const Record& record);
     std::optional<Record> readRecordFromBuffer(const std::string& fileName);
     void flushWriteBuffer(const std::string& fileName);
     void displayFile(const std::string& fileName);
     bool allFilesRead(const std::string& fileName);
-    int getReadNumber(const std::string& fileName) const;
-    int getWriteNumber(const std::string& fileName) const;
-    int getNumberOfActiveFiles() const;
-    const int getBufferReadCount(const std::string& fileName) const;
+    const int getReadNumber(const std::string& fileName) const;
+    const int getWriteNumber(const std::string& fileName) const;
+    const int getNumberOfActiveFiles() const;
     const std::optional<int32_t> peekNextSize(const std::string& fileName);
     const std::optional<int32_t> peekNextSizeInBytes(const std::string& fileName);
-    void temporaryCloseFile(const std::string& fileName);
+    void saveCurrentOutputDirState(const std::string& outputDirStateFolderName);
 
 
 };

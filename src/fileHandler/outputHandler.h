@@ -4,7 +4,8 @@
 #include <string>
 #include "const.h"
 #include "record.h"
-#include <bitset>
+#include <cstring>
+#include <cerrno>
 class outputHandler
 {
 private:
