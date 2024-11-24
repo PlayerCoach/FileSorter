@@ -41,7 +41,7 @@ Record::Record()
     std::random_device rd;                     
     std::mt19937 gen(rd());           
     std::uniform_int_distribution<int> distOne(1, MAX_RECORD_COUNT); 
-    int count = 15; //distOne(gen);         
+    int count = distOne(gen);         
     std::uniform_int_distribution<int> dist(MIN_NUMBER_VALUE, MAX_NUMBER_VALUE); 
 
     for(int i = 0; i < count; i++)

@@ -230,3 +230,27 @@ const int fileHandler::getBufferReadCount(const std::string& fileName) const {
     }
     
 }
+
+const std::optional<int32_t> fileHandler::peekNextSize(const std::string& fileName) {
+    try
+    {
+        return this->inputHandlers.at(fileName)->peekNextSize();
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+    }
+    
+}
+
+const std::optional<int32_t> fileHandler::peekNextSizeInBytes(const std::string& fileName) {
+    try
+    {
+        return this->inputHandlers.at(fileName)->peekNextSizeInBytes();
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+    }
+    
+}

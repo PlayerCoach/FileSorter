@@ -2,14 +2,16 @@
 
 void LargeBufferSort::sort() {
     createRuns();
-    // mergeTapes();
+    mergeAllTapes();
 
-    for(auto tape : this->tapes)
-    {
-        std::cout << "***************" << std::endl;
-        this->IOhandler->displayFile(tape);
-        std::cout << "***************" << std::endl;
-    }
+    // for(auto tape : this->tapes)
+    // {
+    //     std::cout << "***************" << std::endl;
+    //     this->IOhandler->displayFile(tape);
+    //     std::cout << "***************" << std::endl;
+    // }
+
+    this->IOhandler->displayFile("output.bin");
     
 }
 
@@ -49,28 +51,82 @@ void LargeBufferSort::createRuns() {
     this->IOhandler->closeFileForInput(this->inputFile);
 }
 
-
-
 bool LargeBufferSort::readBuffers(std::vector<Record>& records)
 {
-    for(int i = 0; i < APPROX_NUMBER_OF_RECORDS_IN_BLOCK * this->numberOfBuffersToRead; i++) 
+    int32_t currentBufferSize = 0;
+    int32_t maxSizeOfBuffer = this->numberOfBuffersToRead * BUFFER_SIZE;
+    std::optional<int32_t> nextSize = 0;
+    bool firstRead = false;
+    while(true)
     {
+        if(firstRead)
+        {
+            nextSize = this->IOhandler->peekNextSizeInBytes(this->inputFile);
+            if (!nextSize.has_value()) {
+                return false;
+            }
+            if (currentBufferSize + nextSize.value() > maxSizeOfBuffer) {
+                return true;
+            }
+        }
+       
+    
         std::optional<Record> record = this->IOhandler->readRecordFromBuffer(this->inputFile);
         if (!record.has_value()) {
             return false;
-            break;
         }
 
         records.push_back(record.value());
+        currentBufferSize += record.value().getSizeInBytes();
+        firstRead = true;
     }
     return true;
 } 
 
-void LargeBufferSort::mergeNTapes(int startTapeIndex)
+void LargeBufferSort::mergeAllTapes()
 {
+    int currentPhase = 0;
+    std::vector<std::string> newTapes;
+    bool changeBaseName = true;
+
+
+    int startTapeIndex = 0;
+    
+    while(this->tapes.size() > 1)
+    {
+        bool hasReadAll = mergeNTapes(startTapeIndex, newTapes, currentPhase, changeBaseName);
+        if(hasReadAll)
+        {
+            startTapeIndex = 0;
+            currentPhase = 0;
+            this->deleteFiles(this->tapes);
+            this->tapes.clear();
+            this->tapes.insert(this->tapes.end(), newTapes.begin(), newTapes.end());
+            newTapes.clear();
+            changeBaseName = !changeBaseName;
+            continue;
+            
+        }
+    }
+
+    std::string finalOutput = "output.bin";
+    std::filesystem::rename(this->tapes[0], finalOutput);
+    this->tapes.clear();
+
+ 
+}
+
+bool LargeBufferSort::mergeNTapes(int startTapeIndex, std::vector<std::string>& newTapes, int iterator, bool changeBaseName)
+{
+    bool hasReadAll = false;
     std::priority_queue<Record> maxHeap;
     for(int i = startTapeIndex; i < startTapeIndex + this->numberOfBuffersToRead; i++)
     {
+        if(i >= this->tapes.size())
+        {
+            hasReadAll = true;
+            break;
+        }
         std::string tapeName = this->tapes[i];
         this->IOhandler->openFileForInput(tapeName);
         std::optional<Record> record = this->IOhandler->readRecordFromBuffer(tapeName);
@@ -81,39 +137,62 @@ void LargeBufferSort::mergeNTapes(int startTapeIndex)
         this->IOhandler->closeFileForInput(tapeName);
 
     }
+    std::string outputTape;
+    if(changeBaseName)
+    {
+        outputTape = TEMP_TAPE_BASE + std::to_string(iterator) + ".bin";
+    }
+    else
+    {
+        outputTape = TAPE_BASE + std::to_string(iterator) + ".bin";
+    }
 
-    this->IOhandler->openFileForOutput(this->tapes[startTapeIndex]);
+    this->IOhandler->openFileForOutput(outputTape);
     while(!maxHeap.empty())
     {
         Record record = maxHeap.top();
         maxHeap.pop();
-        this->IOhandler->writeRecordToBuffer(this->tapes[startTapeIndex], record);
+        this->IOhandler->writeRecordToBuffer(outputTape, record);
     }
-    this->IOhandler->flushWriteBuffer(this->tapes[startTapeIndex]);
-    this->IOhandler->closeFileForOutput(this->tapes[startTapeIndex]);
+    this->IOhandler->flushWriteBuffer(outputTape);
+    this->IOhandler->closeFileForOutput(outputTape);
 
-    for(int i = startTapeIndex + 1; i < startTapeIndex + this->numberOfBuffersToRead; i++)
-    {
-        std::filesystem::remove(this->tapes[i]);
-        this->tapes.erase(this->tapes.begin() + i);
-    }
-
-
+    // for(int i = startTapeIndex ; i < startTapeIndex + this->numberOfBuffersToRead; i++)
+    // {
+    //     std::filesystem::remove(this->tapes[i]);
+    //     this->tapes.erase(this->tapes.begin() + i);
+    // } -> cant remove them here cause it would change the indexes of the tapes
+    newTapes.push_back(outputTape);
+    return hasReadAll;
 
 }
 
-void LargeBufferSort::mergeAllTapes()
+void deleteFiles(std::vector<std::string> files)
 {
-    int currentPhase = 0;
-    int startTapeIndex = 0;
-    while(this->tapes.size() > 1)
+    for(auto file : files)
     {
-        mergeNTapes(startTapeIndex);
-        startTapeIndex += this->numberOfBuffersToRead;
-        currentPhase++;
-    } // i dont know how to manage file names here, like here would be a good place to delete the files that are no longer needed
- 
+        std::filesystem::remove(file);
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* Version using bytes to determine buffer size, not ideal*/
 // bool LargeBufferSort::readBuffers(std::vector<Record>& records)
 // {

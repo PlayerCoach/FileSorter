@@ -23,7 +23,8 @@ public:
         : SortingStrategy(handler, inputFile) {}
     void sort() override;
     void createRuns();
-    void mergeNTapes(int startTapeIndex);
+    bool mergeNTapes(int startTapeIndex, std::vector<std::string>& newTapes, int iterator, bool changeBaseName);
     void mergeAllTapes();
     bool readBuffers(std::vector<Record>& records);
+    void deleteFiles(std::vector<std::string> files);
 };

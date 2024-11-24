@@ -36,6 +36,8 @@ public:
     int getWriteNumber(const std::string& fileName) const;
     int getNumberOfActiveFiles() const;
     const int getBufferReadCount(const std::string& fileName) const;
+    const std::optional<int32_t> peekNextSize(const std::string& fileName);
+    const std::optional<int32_t> peekNextSizeInBytes(const std::string& fileName);
 
 
 };

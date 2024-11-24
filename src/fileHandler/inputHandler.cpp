@@ -154,9 +154,14 @@ const int inputHandler::getBufferReadCount() const
 // Returns the size of the next record in the buffer without moving the read index but with reloading buffer if necessary
 const std::optional<int32_t> inputHandler::peekNextSize() 
 {
+    if(allFilesRead())
+    {
+        return std::nullopt;
+    }
+    
     if (this->readBufferIndex + sizeof(int32_t) > this->readBufferSize) {
          if (!this->reloadBuffer()) {
-            std::cerr << "Error: Not enough data to read integer" << std::endl;
+            //std::cerr << "Error: Not enough data to read integer" << std::endl;
             return std::nullopt;
         }
     }
@@ -165,6 +170,16 @@ const std::optional<int32_t> inputHandler::peekNextSize()
     std::memcpy(&value, this->readBuffer + this->readBufferIndex, sizeof(int32_t));
     return value;
 }
+
+const std::optional<int32_t> inputHandler::peekNextSizeInBytes() 
+{
+    auto sizeOpt = this->peekNextSize();
+    if (!sizeOpt.has_value()) {
+        return std::nullopt;
+    }
+    return sizeOpt.value() * sizeof(int32_t) + sizeof(int32_t); // change later to something more general
+}
+
 void inputHandler::closeFile()
 {
     this->file.close();
