@@ -164,4 +164,14 @@ void Record::remove(int value)
     this->series.erase(value);
 }
 
+const int32_t Record::getSize() const
+{
+    return this->series.size();
+}
+
+const int32_t Record::getSizeInBytes() const
+{
+    return ((this->series.size() + 1 ) * sizeof(this->series.begin()));
+}
+
 Record::~Record(){}

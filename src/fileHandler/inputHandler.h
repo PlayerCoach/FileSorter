@@ -33,6 +33,8 @@ public:
     bool allFilesRead() const;
     const int getReadNumber() const;
     const int getBufferReadCount() const;
+    const std::optional<int32_t> peekNextSize();
+    const std::optional<int32_t> peekNextSizeInBytes();
     void closeFile();
 
 };

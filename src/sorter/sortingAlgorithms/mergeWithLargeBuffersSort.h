@@ -23,5 +23,7 @@ public:
         : SortingStrategy(handler, inputFile) {}
     void sort() override;
     void createRuns();
+    void mergeNTapes(int startTapeIndex);
+    void mergeAllTapes();
     bool readBuffers(std::vector<Record>& records);
 };

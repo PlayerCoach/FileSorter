@@ -49,6 +49,71 @@ void LargeBufferSort::createRuns() {
     this->IOhandler->closeFileForInput(this->inputFile);
 }
 
+
+
+bool LargeBufferSort::readBuffers(std::vector<Record>& records)
+{
+    for(int i = 0; i < APPROX_NUMBER_OF_RECORDS_IN_BLOCK * this->numberOfBuffersToRead; i++) 
+    {
+        std::optional<Record> record = this->IOhandler->readRecordFromBuffer(this->inputFile);
+        if (!record.has_value()) {
+            return false;
+            break;
+        }
+
+        records.push_back(record.value());
+    }
+    return true;
+} 
+
+void LargeBufferSort::mergeNTapes(int startTapeIndex)
+{
+    std::priority_queue<Record> maxHeap;
+    for(int i = startTapeIndex; i < startTapeIndex + this->numberOfBuffersToRead; i++)
+    {
+        std::string tapeName = this->tapes[i];
+        this->IOhandler->openFileForInput(tapeName);
+        std::optional<Record> record = this->IOhandler->readRecordFromBuffer(tapeName);
+        if(record.has_value())
+        {
+            maxHeap.push(record.value());
+        }
+        this->IOhandler->closeFileForInput(tapeName);
+
+    }
+
+    this->IOhandler->openFileForOutput(this->tapes[startTapeIndex]);
+    while(!maxHeap.empty())
+    {
+        Record record = maxHeap.top();
+        maxHeap.pop();
+        this->IOhandler->writeRecordToBuffer(this->tapes[startTapeIndex], record);
+    }
+    this->IOhandler->flushWriteBuffer(this->tapes[startTapeIndex]);
+    this->IOhandler->closeFileForOutput(this->tapes[startTapeIndex]);
+
+    for(int i = startTapeIndex + 1; i < startTapeIndex + this->numberOfBuffersToRead; i++)
+    {
+        std::filesystem::remove(this->tapes[i]);
+        this->tapes.erase(this->tapes.begin() + i);
+    }
+
+
+
+}
+
+void LargeBufferSort::mergeAllTapes()
+{
+    int currentPhase = 0;
+    int startTapeIndex = 0;
+    while(this->tapes.size() > 1)
+    {
+        mergeNTapes(startTapeIndex);
+        startTapeIndex += this->numberOfBuffersToRead;
+        currentPhase++;
+    } // i dont know how to manage file names here, like here would be a good place to delete the files that are no longer needed
+ 
+}
 /* Version using bytes to determine buffer size, not ideal*/
 // bool LargeBufferSort::readBuffers(std::vector<Record>& records)
 // {
@@ -66,18 +131,3 @@ void LargeBufferSort::createRuns() {
 //     }
 //     return true;
 // } 
-
-bool LargeBufferSort::readBuffers(std::vector<Record>& records)
-{
-    for(int i = 0; i < APPROX_NUMBER_OF_RECORDS_IN_BLOCK * this->numberOfBuffersToRead; i++) 
-    {
-        std::optional<Record> record = this->IOhandler->readRecordFromBuffer(this->inputFile);
-        if (!record.has_value()) {
-            return false;
-            break;
-        }
-
-        records.push_back(record.value());
-    }
-    return true;
-} 

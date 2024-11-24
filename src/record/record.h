@@ -13,7 +13,7 @@ class Record
 {
 private:
     //attributes
-    std::set<int> series;
+    std::set<int32_t> series; // changed here for int 32 hope it wont break anything 
     
     //methods 
     int getMaxUnique(const Record &other) const;
@@ -34,5 +34,7 @@ public:
     friend std::istream &operator >> (std::istream &is, Record &record);
     void insert(int value);
     void remove(int value);
+    const int32_t getSize() const;
+    const int32_t getSizeInBytes() const;
     ~Record();
 };
