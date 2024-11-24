@@ -42,12 +42,13 @@ void LargeBufferSort::createRuns() {
             this->IOhandler->writeRecordToBuffer(currentTapeName, record);
         }
         this->IOhandler->flushWriteBuffer(currentTapeName);
+        this->writeNumber += this->IOhandler->getWriteNumber(currentTapeName);
         this->IOhandler->closeFileForOutput(currentTapeName);
 
         records.clear(); // Clear buffer for next tape
         tapeIndex++;
     }
-
+    this->readNumber += this->IOhandler->getReadNumber(this->inputFile);
     this->IOhandler->closeFileForInput(this->inputFile);
 }
 
@@ -121,6 +122,10 @@ bool LargeBufferSort::mergeNTapes(int startTapeIndex, std::vector<std::string>& 
 {
     bool hasReadAll = false;
     std::priority_queue<Record> maxHeap;
+    //make heap with touple , file name and record
+    //mnake initial loop when i read one record from n-1 tapes
+    //then when poping max fro mthe heap i write the record to output file and read new record from the max file
+    // if maks file is empty idk guess the heap has less elements then
     for(int i = startTapeIndex; i < startTapeIndex + this->numberOfBuffersToRead; i++)
     {
         if(i >= this->tapes.size())
@@ -136,6 +141,7 @@ bool LargeBufferSort::mergeNTapes(int startTapeIndex, std::vector<std::string>& 
             maxHeap.push(record.value());
             record = this->IOhandler->readRecordFromBuffer(tapeName);
         }
+        this->writeNumber += this->IOhandler->getWriteNumber(tapeName);
         this->IOhandler->closeFileForInput(tapeName);
 
     }
@@ -157,6 +163,7 @@ bool LargeBufferSort::mergeNTapes(int startTapeIndex, std::vector<std::string>& 
         this->IOhandler->writeRecordToBuffer(outputTape, record);
     }
     this->IOhandler->flushWriteBuffer(outputTape);
+    this->readNumber += this->IOhandler->getReadNumber(outputTape);
     this->IOhandler->closeFileForOutput(outputTape);
 
     newTapes.push_back(outputTape);
