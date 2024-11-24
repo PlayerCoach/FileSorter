@@ -8,6 +8,17 @@ void inputHandler::openFile(std::string fileName)
     if (!file.is_open())
     {
         std::cerr << "Error: Could not open file " << fileName << std::endl;
+        std::cerr << "Reason: " << std::strerror(errno) << std::endl;
+
+        // Additional debugging info
+        std::ifstream test(fileName);
+        if (!test.is_open()) {
+            std::cerr << "File does not exist or is inaccessible." << std::endl;
+        } else {
+            std::cerr << "File exists, but there may be permission issues or it's locked." << std::endl;
+        }
+        test.close();
+
         exit(1);
     }
     this->fileName = fileName;
@@ -184,3 +195,5 @@ void inputHandler::closeFile()
 {
     this->file.close();
 }
+
+  

@@ -11,7 +11,10 @@ void LargeBufferSort::sort() {
     //     std::cout << "***************" << std::endl;
     // }
 
-    this->IOhandler->displayFile(MAIN_OUTPUT);
+    //this->IOhandler->displayFile(MAIN_OUTPUT);
+    std::cout << "Read number: " << this->readNumber << std::endl;
+    std::cout << "Write number: " << this->writeNumber << std::endl;
+    std::cout << "Total number of IOs: " << this->readNumber + this->writeNumber << std::endl;
     
 }
 
@@ -23,8 +26,7 @@ void LargeBufferSort::createRuns() {
     std::string currentTapeName = "";
 
     while (!hasReadAll) {
-        if (tapeIndex < 300)  // for debugging
-            this->tapes.push_back(TAPE_BASE + std::to_string(tapeIndex) + ".bin");
+        this->tapes.push_back(TAPE_BASE + std::to_string(tapeIndex) + ".bin");
 
         
         hasReadAll = !readBuffers(records);
@@ -118,58 +120,77 @@ void LargeBufferSort::mergeAllTapes()
  
 }
 
-bool LargeBufferSort::mergeNTapes(int startTapeIndex, std::vector<std::string>& newTapes, int iterator, bool changeBaseName)
-{
+bool LargeBufferSort::mergeNTapes(int startTapeIndex, std::vector<std::string>& newTapes, int iterator, bool changeBaseName) {
     bool hasReadAll = false;
-    std::priority_queue<Record> maxHeap;
-    //make heap with touple , file name and record
-    //mnake initial loop when i read one record from n-1 tapes
-    //then when poping max fro mthe heap i write the record to output file and read new record from the max file
-    // if maks file is empty idk guess the heap has less elements then
-    for(int i = startTapeIndex; i < startTapeIndex + this->numberOfBuffersToRead; i++)
-    {
-        if(i >= this->tapes.size())
-        {
+
+    // A custom comparator for min-heap based on the Record value
+    auto compare = [](const std::pair<Record, int>& a, const std::pair<Record, int>& b) {
+        return a.first < b.first;  // Max-heap based on the Record value
+    };
+
+    // Priority queue (max heap) to merge records incrementally
+    std::priority_queue<std::pair<Record, int>, std::vector<std::pair<Record, int>>, decltype(compare)> maxHeap(compare);
+
+    for (int i = startTapeIndex; i < startTapeIndex + this->numberOfBuffersToRead; i++) {
+        if (i >= this->tapes.size()) {
             hasReadAll = true;
             break;
         }
+
         std::string tapeName = this->tapes[i];
         this->IOhandler->openFileForInput(tapeName);
-        std::optional<Record> record = this->IOhandler->readRecordFromBuffer(tapeName);
-        while(record.has_value())
-        {
-            maxHeap.push(record.value());
-            record = this->IOhandler->readRecordFromBuffer(tapeName);
-        }
-        this->writeNumber += this->IOhandler->getWriteNumber(tapeName);
-        this->IOhandler->closeFileForInput(tapeName);
 
+        // Read the first record from the tape
+        std::optional<Record> record = this->IOhandler->readRecordFromBuffer(tapeName);
+        if (record.has_value()) {
+            maxHeap.push({record.value(), i});  // Store record and index of tape
+        }
+        this->IOhandler->temporaryCloseFile(tapeName);
     }
+
+    // Determine output tape name
     std::string outputTape;
-    if(changeBaseName)
-    {
+    if (changeBaseName) {
         outputTape = TEMP_TAPE_BASE + std::to_string(iterator) + ".bin";
-    }
-    else
-    {
+    } else {
         outputTape = TAPE_BASE + std::to_string(iterator) + ".bin";
     }
 
     this->IOhandler->openFileForOutput(outputTape);
-    while(!maxHeap.empty())
-    {
-        Record record = maxHeap.top();
+
+    // Merge logic
+    while (!maxHeap.empty()) {
+        // Get the smallest record from the heap
+        auto [record, tapeIndex] = maxHeap.top();
         maxHeap.pop();
+
+        // Write the record to the output buffer
         this->IOhandler->writeRecordToBuffer(outputTape, record);
+
+        // Read the next record from the same tape and insert it into the heap
+        std::string tapeName = this->tapes[tapeIndex];
+        this->IOhandler->openFileForInput(tapeName);
+        std::optional<Record> nextRecord = this->IOhandler->readRecordFromBuffer(tapeName);
+        this->IOhandler->temporaryCloseFile(tapeName);
+        if (nextRecord.has_value()) {
+            maxHeap.push({nextRecord.value(), tapeIndex});
+        } else {
+            // Close the input tape if no more records are left
+            this->readNumber += this->IOhandler->getReadNumber(tapeName);
+            this->IOhandler->closeFileForInput(tapeName);
+        }
     }
+
+    // Flush the output buffer and close the output tape
     this->IOhandler->flushWriteBuffer(outputTape);
-    this->readNumber += this->IOhandler->getReadNumber(outputTape);
+    this->writeNumber += this->IOhandler->getWriteNumber(outputTape);
     this->IOhandler->closeFileForOutput(outputTape);
 
+    // Add the output tape to the list of new tapes
     newTapes.push_back(outputTape);
     return hasReadAll;
-
 }
+
 
 void LargeBufferSort::deleteFiles(std::vector<std::string> files)
 {
@@ -181,7 +202,38 @@ void LargeBufferSort::deleteFiles(std::vector<std::string> files)
 
 
 
+// bool LargeBufferSort::mergeNTapes(int startTapeIndex, std::vector<std::string>& newTapes, int iterator, bool changeBaseName)
+// {
+//     //make heap with touple , file name and record
+//     //mnake initial loop when i read one record from n-1 tapes
+//     //then when poping max fro mthe heap i write the record to output file and read new record from the max file
+//     // if maks file is empty idk guess the heap has less elements then
+//     for(int i = startTapeIndex; i < startTapeIndex + this->numberOfBuffersToRead; i++)
+//     {
+// 
+//         while(record.has_value())
+//         {
+//             record = this->IOhandler->readRecordFromBuffer(tapeName);
+//         }
+//         this->writeNumber += this->IOhandler->getWriteNumber(tapeName);
+//         this->IOhandler->closeFileForInput(tapeName);
 
+//     }
+
+//     while(!maxHeap.empty())
+//     {
+//         Record record = maxHeap.top();
+//         maxHeap.pop();
+//         this->IOhandler->writeRecordToBuffer(outputTape, record);
+//     }
+//     this->IOhandler->flushWriteBuffer(outputTape);
+//     this->readNumber += this->IOhandler->getReadNumber(outputTape);
+//     this->IOhandler->closeFileForOutput(outputTape);
+
+//     newTapes.push_back(outputTape);
+//     return hasReadAll;
+
+// }
 
 
 

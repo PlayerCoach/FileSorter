@@ -15,7 +15,7 @@
 
 class LargeBufferSort : public SortingStrategy {
     private:
-    const int numberOfBuffersToRead = 100;
+    const int numberOfBuffersToRead = 1001;
     std::vector<std::string> tapes;
 
 public:

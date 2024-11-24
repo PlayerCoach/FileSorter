@@ -6,6 +6,9 @@
 #include "record.h"
 #include <stdlib.h>
 #include <optional>
+#include <cstring>
+#include <cerrno>
+
 class inputHandler
 {
 private:

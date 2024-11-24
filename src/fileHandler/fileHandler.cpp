@@ -254,3 +254,15 @@ const std::optional<int32_t> fileHandler::peekNextSizeInBytes(const std::string&
     }
     
 }
+
+void fileHandler::temporaryCloseFile(const std::string& fileName) {
+    try
+    {
+        this->inputHandlers.at(fileName)->closeFile();
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+    }
+    
+}
