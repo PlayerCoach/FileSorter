@@ -10,11 +10,11 @@ void NaturalMergeSort::sort() {
         sortedFile = divide();
         if(sortedFile.has_value())
             break;
-        // std::cout<< "TEMP OUTPUT 1" << std::endl;
+        // std::cout<< "TEMP OUTPUT_DIR 1" << std::endl;
         // this->IOhandler->displayFile(TEMP_OUTPUT1);
-        // std::cout<< "TEMP OUTPUT 2" << std::endl;
+        // std::cout<< "TEMP OUTPUT_DIR 2" << std::endl;
         // this->IOhandler->displayFile(TEMP_OUTPUT2);
-         //std::cout<< "MAIN OUTPUT" << std::endl;
+         //std::cout<< "MAIN OUTPUT_DIR" << std::endl;
          //this->IOhandler->displayFile(MAIN_OUTPUT);
     } 
     this->IOhandler->displayFile(sortedFile.value());

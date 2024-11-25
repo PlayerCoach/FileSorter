@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-const int  MAX_RECORD_COUNT = 15;
+const int  MAX_RECORD_COUNT = 1;
 const int MAX_NUMBER_VALUE = 1000000;
 const int MIN_NUMBER_VALUE =  -1000000;
 const int APPROX_NUMBER_OF_RECORDS_IN_BLOCK = 10;

@@ -19,12 +19,14 @@ fileHandler::fileHandler()
     
 }
 
-void fileHandler::createFolder(const std::string& folderName) {
+std::string fileHandler::createFolder(const std::string& folderName) {
     if (!std::filesystem::exists(folderName))
     {
         std::string fullFolderPath = OUTPUT_FOLDER + "/" + folderName;
         std::filesystem::create_directory(fullFolderPath);
+        return fullFolderPath;
     }
+    return "";
 }
 
 std::optional<Record> fileHandler::readRecordFromFile(const std::string& fileName) {
@@ -95,13 +97,13 @@ void fileHandler::finalizeFileForInput(const std::string& fileName) {
     
 }
 
-void fileHandler::openFileForOutput(const std::string& fileName) {
+void fileHandler::openFileForOutput(const std::string& fileName, const std::string& mode) {
     try
     {
         if(outputHandlers.find(fileName) == outputHandlers.end())
             outputHandlers[fileName] = std::make_unique<outputHandler>();
         
-        outputHandlers[fileName]->openFile(fileName);
+        outputHandlers[fileName]->openFile(fileName, mode);
     }
     catch(const std::exception& e)
     {
@@ -179,6 +181,7 @@ bool fileHandler::allFilesRead(const std::string& fileName) {
     catch(const std::exception& e)
     {
         std::cerr << e.what() << '\n';
+        return true;
     }
     
 }
@@ -252,4 +255,44 @@ void fileHandler::saveCurrentOutputDirState(const std::string& outputDirStateFol
             );
         }
     }
+}
+
+void fileHandler::renameFile(const std::string& oldName, const std::string& newName) {
+    std::filesystem::rename(oldName, newName);
+}
+
+void fileHandler::deleteFile(const std::string& fileName) {
+    std::filesystem::remove(fileName);
+}
+
+void fileHandler::moveFile(const std::string& fileName, const std::string& folderName) {
+    // Extract the file name from the full path
+    std::filesystem::path sourcePath(fileName);
+    std::string baseName = sourcePath.filename().string();
+    
+    // Construct the destination path
+    std::filesystem::path destinationPath = std::filesystem::path(folderName) / baseName;
+
+    // Perform the move operation
+    std::filesystem::rename(fileName, destinationPath);
+}
+
+void fileHandler::concatenateFilesInFolder(const std::string& folderPath, const std::string& outputFileName) {
+    // Ensure output file path is within OUTPUT_FOLDER
+    std::filesystem::path fullOutputFilePath = std::filesystem::path(OUTPUT_FOLDER) / outputFileName;
+
+    std::ofstream outputFile(fullOutputFilePath, std::ios::binary);
+    for (const auto& entry : std::filesystem::directory_iterator(folderPath)) {
+        if (entry.is_regular_file()) { // Check if it's a file
+            std::ifstream inputFile(entry.path(), std::ios::binary);
+            outputFile << inputFile.rdbuf();
+            inputFile.close();
+            std::filesystem::remove(entry.path());
+        }
+    }
+    outputFile.close();
+}
+
+void fileHandler::deleteFolder(const std::string& folderPath) {
+    std::filesystem::remove_all(folderPath);
 }

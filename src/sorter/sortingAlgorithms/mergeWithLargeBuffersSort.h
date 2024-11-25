@@ -15,8 +15,16 @@
 
 class LargeBufferSort : public SortingStrategy {
     private:
-    const int numberOfBuffersToRead = 1001;
+    const int numberOfBuffersToRead = 10;
+    uint16_t phaseCounter = 0;
     std::vector<std::string> tapes;
+
+    std::string createNextTape(int tempTapeIndex);
+    void sortAndSaveRecords(std::vector<Record>& records, std::string outputTape);
+    void mergeTempFiles(std::vector<std::string>& files);
+    auto initializeHeap(int startTapeIndex, bool& hasReadAll);
+    std::string determineOutputTapeName(int iterator, bool changeBaseName);
+
 
 public:
     LargeBufferSort(fileHandler* handler, std::string inputFile)
@@ -26,5 +34,5 @@ public:
     bool mergeNTapes(int startTapeIndex, std::vector<std::string>& newTapes, int iterator, bool changeBaseName);
     void mergeAllTapes();
     bool readBuffers(std::vector<Record>& records);
-    void deleteFiles(std::vector<std::string> files);
+    void deleteTempFiles(std::vector<std::string> files);
 };

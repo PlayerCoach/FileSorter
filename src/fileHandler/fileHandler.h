@@ -18,13 +18,13 @@ private:
     std::unordered_map<std::string, std::unique_ptr<outputHandler>> outputHandlers;
 public:
     fileHandler();
-    void createFolder(const std::string& folderName);
+    std::string createFolder(const std::string& folderName);
     std::optional<Record> readRecordFromFile(const std::string& fileName);
     void writeRecordToFile(const std::string& fileName, const Record& content);
     void openFileForInput(const std::string& fileName);   
     void closeFileForInput(const std::string& fileName);
     void finalizeFileForInput(const std::string& fileName);
-    void openFileForOutput(const std::string& fileName);
+    void openFileForOutput(const std::string& fileName, const std::string& mode = "truncate");
     void closeFileForOutput(const std::string& fileName);
     void writeRecordToBuffer(const std::string& fileName, const Record& record);
     std::optional<Record> readRecordFromBuffer(const std::string& fileName);
@@ -37,6 +37,11 @@ public:
     const std::optional<int32_t> peekNextSize(const std::string& fileName);
     const std::optional<int32_t> peekNextSizeInBytes(const std::string& fileName);
     void saveCurrentOutputDirState(const std::string& outputDirStateFolderName);
+    void renameFile(const std::string& oldName, const std::string& newName);
+    void deleteFile(const std::string& fileName);
+    void moveFile(const std::string& oldName, const std::string& newName); 
+    void concatenateFilesInFolder(const std::string& folderPath, const std::string& outputFileName);
+    void deleteFolder(const std::string& folderPath);
 
 
 };

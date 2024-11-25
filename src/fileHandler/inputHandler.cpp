@@ -96,7 +96,6 @@ std::optional<int32_t> inputHandler::readNextInt()
 {
      if (this->readBufferIndex + sizeof(int32_t) > this->readBufferSize) {
         if (!this->reloadBuffer()) {
-            std::cerr << "Error: Not enough data to read integer" << std::endl;
             return std::nullopt;
         }
     }
@@ -127,7 +126,6 @@ std::optional<Record> inputHandler::readRecordFromBuffer()
     {
         return std::nullopt;
     }
-
     auto sizeOpt = this->readNextInt();
     if (!sizeOpt.has_value()) {
         return std::nullopt;
@@ -191,5 +189,3 @@ void inputHandler::closeFile()
 {
     this->file.close();
 }
-
-  

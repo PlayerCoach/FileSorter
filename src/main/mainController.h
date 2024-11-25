@@ -22,4 +22,9 @@ public:
     bool getUserInput();
     bool parseInput(std::string userInput);
     bool interpretUserInput(std::vector<std::string> tokens);
+    void addRecords(std::vector<std::string>& tokens);
+    bool checkIfTokensAreEmpty(std::vector<std::string>& tokens);
+    void addRandomRecords(int numberOfRecords);
+    void addSpecifiedRecords(int numberOfRecords);
+    void readInputFile();
 };
