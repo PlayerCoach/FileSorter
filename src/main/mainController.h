@@ -31,4 +31,5 @@ public:
     int sortFile();
     void showFile(std::vector<std::string>& tokens);
     void clearInputFile();
+    void experiment();
 };

@@ -2,15 +2,15 @@
 
 mainController::mainController() 
 { 
-    this->filePath  = INPUT;
-    printMenu();
-    bool running = true;
-    this->fileHandler.convertTxtToInputBin("chuj.txt");
-    while(running)
-    {
-        running = getUserInput();
+     this->filePath  = INPUT;
+    // printMenu();
+    // bool running = true;
+    // while(running)
+    // {
+    //     running = getUserInput();
 
-    }
+    // }
+    experiment();
 
 }
 
@@ -76,6 +76,12 @@ bool mainController::interpretUserInput(std::vector<std::string> tokens)
     }
     else if(tokens[0] == QUIT_CMD)
     {
+        tokens.erase(tokens.begin());
+        if(!tokens.empty())
+        {
+            std::cout << "Invalid input" << std::endl;
+            return true;
+        }
         std::cout << "Exiting program" << std::endl;
         return false;
     }
@@ -97,6 +103,12 @@ bool mainController::interpretUserInput(std::vector<std::string> tokens)
     }
     else if(tokens[0] == HELP_CMD)
     {
+        tokens.erase(tokens.begin());
+        if(!tokens.empty())
+        {
+            std::cout << "Invalid input" << std::endl;
+            return true;
+        }
         printMenu();
         return true;
     }
@@ -113,7 +125,6 @@ bool mainController::interpretUserInput(std::vector<std::string> tokens)
     }
     
 }
-
 
 void mainController::addRecords(std::vector<std::string>& tokens)
 {
@@ -159,6 +170,11 @@ void mainController::addRecords(std::vector<std::string>& tokens)
         readInputFile();
 
     }
+    else if(tokens.size() > 0)
+    {
+        std::cout << "Invalid input" << std::endl;
+        return;
+    }
    
 }
 
@@ -182,7 +198,6 @@ void mainController::addRandomRecords(int numberOfRecords)
     }
     this->fileHandler.closeFileForOutput(filePath);
 }
-
 
 void mainController::addSpecifiedRecords(int numberOfRecords)
 {
@@ -253,6 +268,13 @@ void mainController::parseSortCommand(std::vector<std::string>& tokens)
 
     if(tokens[0] == HIDDEN_FLAG)
     {
+        tokens.erase(tokens.begin());
+        if(tokens.size() >= 1)
+        {
+            if(tokens[0] == FULL_FLAG)
+            int phases = sortFile();
+            return;
+        }
         int phases = sortFile();
         this->fileHandler.displayFile(MAIN_OUTPUT);
         return;
@@ -266,6 +288,13 @@ void mainController::parseSortCommand(std::vector<std::string>& tokens)
             try
             {
                 int numberOfRecordsToRead = stoi(tokens[0]);
+                tokens.erase(tokens.begin());
+                if (!tokens.empty())
+                {
+                    std::cout << "Invalid input" << std::endl;
+                    return;
+                }
+                
                 
                 for (int i = 1; i < phases; i++)
                 {
@@ -281,7 +310,6 @@ void mainController::parseSortCommand(std::vector<std::string>& tokens)
                 std::cerr << e.what() << '\n';
             }
             return;
-            
         }
         for (int i = 1; i < phases; i++)
         {
@@ -298,6 +326,7 @@ void mainController::parseSortCommand(std::vector<std::string>& tokens)
     }
         
 }
+
 void mainController::showFile(std::vector<std::string>& tokens)
 {
     if(checkIfTokensAreEmpty(tokens))
@@ -338,4 +367,19 @@ void mainController::showFile(std::vector<std::string>& tokens)
 void mainController::clearInputFile()
 {
     this->fileHandler.clearFile(INPUT);
+}
+
+void mainController::experiment()
+{
+   std::cout<<"Experiment"<<std::endl;
+
+   for(int i = 10; i<=10000000; i*=10)
+   {
+       std::cout<<"Number of records: "<<i<<std::endl;
+       addRandomRecords(i);
+       int phases = sortFile();
+       clearInputFile();
+       std::cout<<"***************************************"<<std::endl;
+   }
+
 }

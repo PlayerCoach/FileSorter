@@ -80,13 +80,13 @@ void inputHandler::readBlockFromFile()
     }
 
     this->file.seekg(this->fileIndex);
-    this->file.read(this->readBuffer, BUFFER_SIZE);
+    this->file.read(this->readBuffer, PAGE_SIZE);
     std::streamsize bytesRead = this->file.gcount();
     this->fileIndex = file.tellg();
   
     this->readNumber++;
 
-    this->eof = (bytesRead < BUFFER_SIZE) || (this->file.peek() == EOF) || (this->fileIndex == -1);
+    this->eof = (bytesRead < PAGE_SIZE) || (this->file.peek() == EOF) || (this->fileIndex == -1);
 
     this->readBufferSize = static_cast<int>(bytesRead);
     this->readBufferIndex = 0;

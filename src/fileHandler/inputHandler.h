@@ -21,9 +21,9 @@ private:
     int readNumber = 0;
     std::streampos fileIndex = 0;
 
-    char readBuffer[BUFFER_SIZE]; // buffer for reading from file maby change it for disk or smth
-    int readBufferSize = BUFFER_SIZE;
-    int readBufferIndex  = BUFFER_SIZE; // symbolizes that the buffer is empty
+    char readBuffer[PAGE_SIZE]; // buffer for reading from file maby change it for disk or smth
+    int readBufferSize = PAGE_SIZE;
+    int readBufferIndex  = PAGE_SIZE; // symbolizes that the buffer is empty
     bool eof = false;
 
     void readBlockFromFile();

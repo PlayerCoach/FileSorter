@@ -14,8 +14,8 @@ private:
     std::ofstream file;
     int writeNumber = 0;
     
-    char writeBuffer[BUFFER_SIZE];
-    const int writeBufferSize = BUFFER_SIZE;
+    char writeBuffer[PAGE_SIZE];
+    const int writeBufferSize = PAGE_SIZE;
     int writeBufferIndex= 0;
 
     void writeBlockToFile();

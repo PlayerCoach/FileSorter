@@ -41,17 +41,13 @@ Record::Record()
     std::random_device rd;                     
     std::mt19937 gen(rd());           
     std::uniform_int_distribution<int> distOne(1, MAX_RECORD_COUNT); 
-    int count = 1; //distOne(gen);         
+    int count = distOne(gen);        
     std::uniform_int_distribution<int> dist(MIN_NUMBER_VALUE, MAX_NUMBER_VALUE); 
 
-    while(this->series.size() < count)
+    for(int i = 0; i < count; i++)
     {
         this->series.insert(dist(gen));
     }
-    // for(int i = 0; i < count; i++)
-    // {
-    //     this->series.insert(dist(gen));
-    // }
 }
 
 Record::Record(std::vector<int> series)
@@ -62,7 +58,6 @@ Record::Record(std::vector<int> series)
         }
         this->series.insert(element);
     }
-    //this->sortDescending();
     
 }
 
@@ -137,7 +132,6 @@ bool Record::operator>=(const Record &record) const
 
 std::ostream &operator<<(std::ostream &os, const Record &record)
 {
-    std::cout << record.getSize() << " : ";
     for (auto it = record.series.rbegin(); it != record.series.rend(); it++)
     {
         os << *it << " ";
@@ -175,7 +169,7 @@ const int32_t Record::getSize() const
 
 const int32_t Record::getSizeInBytes() const
 {
-    return this->series.size() * sizeof(int32_t) + sizeof(int32_t);
+    return static_cast<int32_t>(this->series.size() * sizeof(int32_t) + sizeof(int32_t));
 }
 
 Record::~Record(){}

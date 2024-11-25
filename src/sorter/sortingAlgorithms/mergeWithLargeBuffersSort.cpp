@@ -64,7 +64,7 @@ void LargeBufferSort::sortAndSaveRecords(std::vector<Record>& records, std::stri
 bool LargeBufferSort::readBuffers(std::vector<Record>& records)
 {
     int32_t currentBufferSize = 0;
-    int32_t maxSizeOfBuffer = this->numberOfBuffersToRead * BUFFER_SIZE;
+    int32_t maxSizeOfBuffer = this->numberOfBuffersToRead * PAGE_SIZE;
     std::optional<int32_t> nextSize = 0;
     while(true)
     {
