@@ -189,3 +189,4 @@ void inputHandler::closeFile()
 {
     this->file.close();
 }
+

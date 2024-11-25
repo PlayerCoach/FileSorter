@@ -16,7 +16,6 @@
 class LargeBufferSort : public SortingStrategy {
     private:
     const int numberOfBuffersToRead = 10;
-    uint16_t phaseCounter = 0;
     std::vector<std::string> tapes;
 
     std::string createNextTape(int tempTapeIndex);

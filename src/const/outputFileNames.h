@@ -8,4 +8,5 @@ const std::string TEMP_OUTPUT2 = OUTPUT_DIR + "temp2.bin";
 const std::string TAPE_BASE = OUTPUT_DIR + "tape";
 const std::string TEMP_TAPE_BASE = OUTPUT_DIR + "tempTape";
 
-const std::string PHASE_DIR_BASE = "phase";
+const std::string PHASE_FILE_BASE = "phase";
+const std::string PHASE_FILE_PATH = OUTPUT_DIR + PHASE_FILE_BASE;

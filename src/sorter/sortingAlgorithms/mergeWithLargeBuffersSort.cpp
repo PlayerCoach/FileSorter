@@ -8,6 +8,7 @@ void LargeBufferSort::sort()
     std::cout << "Read number: " << this->readNumber << std::endl;
     std::cout << "Write number: " << this->writeNumber << std::endl;
     std::cout << "Total number of IOs: " << this->readNumber + this->writeNumber << std::endl;
+    std::cout << "Number of phases: " << this->phaseCounter << std::endl;
     
 }
 
@@ -206,7 +207,7 @@ void LargeBufferSort::deleteTempFiles(std::vector<std::string> files)
 
 void LargeBufferSort::mergeTempFiles(std::vector<std::string>& files)
 {
-    std::string outputFolderName = PHASE_DIR_BASE + std::to_string(this->phaseCounter);
+    std::string outputFolderName = PHASE_FILE_BASE + std::to_string(this->phaseCounter);
     std::string outputFolderPath = this->IOhandler->createFolder(outputFolderName);
 
     for(auto file : files)
@@ -214,7 +215,7 @@ void LargeBufferSort::mergeTempFiles(std::vector<std::string>& files)
         this->IOhandler->moveFile(file, outputFolderPath);
     }
 
-    this->IOhandler->concatenateFilesInFolder(outputFolderPath, "stage" +  std::to_string(this->phaseCounter) + ".bin");
+    this->IOhandler->concatenateFilesInFolder(outputFolderPath, "phase" +  std::to_string(this->phaseCounter) + ".bin");
     this->IOhandler->deleteFolder(outputFolderPath);
 }
 

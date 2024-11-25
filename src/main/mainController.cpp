@@ -5,6 +5,7 @@ mainController::mainController()
     this->filePath  = INPUT;
     printMenu();
     bool running = true;
+    this->fileHandler.convertTxtToInputBin("chuj.txt");
     while(running)
     {
         running = getUserInput();
@@ -66,10 +67,44 @@ bool mainController::interpretUserInput(std::vector<std::string> tokens)
         return true;
        
     }
+
+    else if (tokens[0] == SORT_CMD)
+    {
+        tokens.erase(tokens.begin());
+        parseSortCommand(tokens);
+        return true;
+    }
     else if(tokens[0] == QUIT_CMD)
     {
         std::cout << "Exiting program" << std::endl;
         return false;
+    }
+    else if(tokens[0] == CLEAR_FILE_CMD)
+    {
+        clearInputFile();
+        return true;
+    }
+    else if(tokens[0] == INPUT_FILE_CMD)
+    {
+        tokens.erase(tokens.begin());
+        if(checkIfTokensAreEmpty(tokens))
+        {
+            std::cout << "Invalid input" << std::endl;
+            return true;
+        }
+        this->fileHandler.convertTxtToInputBin(tokens[0]);
+        return true;
+    }
+    else if(tokens[0] == HELP_CMD)
+    {
+        printMenu();
+        return true;
+    }
+    else if(tokens[0] == SHOW_CMD)
+    {
+        tokens.erase(tokens.begin());
+        showFile(tokens);
+        return true;
     }
     else
     {
@@ -105,12 +140,12 @@ void mainController::addRecords(std::vector<std::string>& tokens)
 
     if(tokens[0] == RANDOM_FLAG)
     {
-         addRandomRecords(numberOfRecords);
-         tokens.erase(tokens.begin());
+        addRandomRecords(numberOfRecords);
+        tokens.erase(tokens.begin());
     }
     else if(tokens[0] == SPECIFIED_FLAG)
     {
-         addSpecifiedRecords(numberOfRecords);
+        addSpecifiedRecords(numberOfRecords);
         tokens.erase(tokens.begin());
     }
     else
@@ -125,15 +160,6 @@ void mainController::addRecords(std::vector<std::string>& tokens)
 
     }
    
-//    Sorter sorter;
-//    std::unique_ptr<SortingStrategy> naturalMergeSort = std::make_unique<NaturalMergeSort>(&fileHandler, filePath);
-//    std::unique_ptr<SortingStrategy> largeBufferSort = std::make_unique<LargeBufferSort>(&fileHandler, filePath);
-//    sorter.setStrategy(std::move(largeBufferSort));
-   
-//    std::cout << "*****************" << std::endl;
-//    sorter.sort();
-//    //this->fileHandler.displayFile(MAIN_OUTPUT);
-      
 }
 
 bool mainController::checkIfTokensAreEmpty(std::vector<std::string>& tokens)
@@ -207,4 +233,109 @@ void mainController::readInputFile()
         std::cout << record.value() << std::endl;
     }
     this->fileHandler.finalizeFileForInput(filePath);
+}
+
+int mainController::sortFile()
+{
+
+    this->fileHandler.deleteAllBinFilesExceptInput(); 
+    Sorter sorter;
+    std::unique_ptr<SortingStrategy> largeBufferSort = std::make_unique<LargeBufferSort>(&fileHandler, filePath);
+    sorter.setStrategy(std::move(largeBufferSort));
+    sorter.sort();
+    return sorter.getPhaseCounter();
+}
+
+void mainController::parseSortCommand(std::vector<std::string>& tokens)
+{
+    if(checkIfTokensAreEmpty(tokens))
+        return;
+
+    if(tokens[0] == HIDDEN_FLAG)
+    {
+        int phases = sortFile();
+        this->fileHandler.displayFile(MAIN_OUTPUT);
+        return;
+    }
+    else if(tokens[0] == EXPLICIT_FLAG)
+    {
+        int phases = sortFile();
+        tokens.erase(tokens.begin());
+        if(!tokens.empty())
+        {
+            try
+            {
+                int numberOfRecordsToRead = stoi(tokens[0]);
+                
+                for (int i = 1; i < phases; i++)
+                {
+                    this->fileHandler.displayNFirstRecords(PHASE_FILE_PATH + std::to_string(i) + ".bin", numberOfRecordsToRead);
+                    std::cout << "***************************************" << std::endl;
+                }
+                this->fileHandler.displayNFirstRecords(MAIN_OUTPUT, numberOfRecordsToRead);
+                std::cout << "***************************************" << std::endl;
+
+            }
+            catch(const std::exception& e)
+            {
+                std::cerr << e.what() << '\n';
+            }
+            return;
+            
+        }
+        for (int i = 1; i < phases; i++)
+        {
+            this->fileHandler.displayFile(PHASE_FILE_PATH + std::to_string(i) + ".bin");
+            std::cout << "***************************************" << std::endl;
+        }
+        this->fileHandler.displayFile(MAIN_OUTPUT);
+        std::cout << "***************************************" << std::endl;
+    }
+    else
+    {
+        std::cout << "Invalid input" << std::endl;
+        return;
+    }
+        
+}
+void mainController::showFile(std::vector<std::string>& tokens)
+{
+    if(checkIfTokensAreEmpty(tokens))
+        return;
+
+    if(tokens[0] == INPUT_FLAG)
+    {
+        this->fileHandler.displayFile(INPUT);
+    }
+    else if(tokens[0] == OUTPUT_FLAG)
+    {
+        this->fileHandler.displayFile(MAIN_OUTPUT);
+    }
+    else if(tokens[0] == PHASE_FLAG)
+    {
+        tokens.erase(tokens.begin());
+        if(checkIfTokensAreEmpty(tokens))
+            return;
+        int phase;
+        try
+        {
+            phase = stoi(tokens[0]);
+        }
+        catch(const std::exception& e)
+        {
+            std::cout << "Invalid input" << std::endl;
+            return;
+        }
+        this->fileHandler.displayFile(PHASE_FILE_PATH + std::to_string(phase) + ".bin");
+    }
+    else
+    {
+        std::cout << "Invalid input" << std::endl;
+        return;
+    }
+}
+
+void mainController::clearInputFile()
+{
+    this->fileHandler.clearFile(INPUT);
 }

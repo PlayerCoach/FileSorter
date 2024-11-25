@@ -7,28 +7,16 @@ void NaturalMergeSort::sort() {
     while(true)
     {
         merge();
+        this->IOhandler->copyFile(MAIN_OUTPUT, "phase" + std::to_string(phaseCounter) + ".bin");
+        phaseCounter++;
         sortedFile = divide();
         if(sortedFile.has_value())
             break;
-        // std::cout<< "TEMP OUTPUT_DIR 1" << std::endl;
-        // this->IOhandler->displayFile(TEMP_OUTPUT1);
-        // std::cout<< "TEMP OUTPUT_DIR 2" << std::endl;
-        // this->IOhandler->displayFile(TEMP_OUTPUT2);
-         //std::cout<< "MAIN OUTPUT_DIR" << std::endl;
-         //this->IOhandler->displayFile(MAIN_OUTPUT);
     } 
     this->IOhandler->displayFile(sortedFile.value());
-    //change name of sorted file
-    // std::filesystem::remove(MAIN_OUTPUT);
-    // std::filesystem::rename(sortedFile.value(), MAIN_OUTPUT);
-    // //delte temp files
-    // std::filesystem::remove(TEMP_OUTPUT1);
-    // std::filesystem::remove(TEMP_OUTPUT2);
-
     std::cout << "Read number: " << this->readNumber << std::endl;
     std::cout << "Write number: " << this->writeNumber << std::endl;
-
-    // std::cout << "Number of active files: " << this->IOhandler->getNumberOfActiveFiles() << std::endl;
+    std::cout << "Total number of IO operations: " << this->readNumber + this->writeNumber << std::endl;
 
 }
 void NaturalMergeSort::initNaturalMergeSort() {
@@ -93,13 +81,13 @@ void NaturalMergeSort::merge() {
     while (recordFromFirstFile.has_value() || recordFromSecondFile.has_value()) {
         if (!recordFromFirstFile.has_value()) {
             // First file is empty, write from second file
-            this->IOhandler->writeRecordToBuffer(MAIN_OUTPUT, recordFromSecondFile.value());
+            this->IOhandler->writeRecordToBuffer(MAIN_OUTPUT, recordFromFirstFile.value());
             recordFromSecondFile = this->IOhandler->readRecordFromBuffer(TEMP_OUTPUT2);
         } else if (!recordFromSecondFile.has_value()) {
             // Second file is empty, write from first file
             this->IOhandler->writeRecordToBuffer(MAIN_OUTPUT, recordFromFirstFile.value());
             recordFromFirstFile = this->IOhandler->readRecordFromBuffer(TEMP_OUTPUT1);
-        } else if (recordFromFirstFile.value() > recordFromSecondFile.value()) {
+        } else if (recordFromFirstFile.value() <= recordFromSecondFile.value()) {
             // Write smaller value to output
             this->IOhandler->writeRecordToBuffer(MAIN_OUTPUT, recordFromFirstFile.value());
             recordFromFirstFile = this->IOhandler->readRecordFromBuffer(TEMP_OUTPUT1);

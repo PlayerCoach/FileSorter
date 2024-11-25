@@ -42,6 +42,10 @@ public:
     void moveFile(const std::string& oldName, const std::string& newName); 
     void concatenateFilesInFolder(const std::string& folderPath, const std::string& outputFileName);
     void deleteFolder(const std::string& folderPath);
-
+    void copyFile(const std::string& source, const std::string& destination);
+    void convertTxtToInputBin(const std::string& txtFilePath);
+    void deleteAllBinFilesExceptInput();
+    void clearFile(const std::string& fileName);
+    void displayNFirstRecords(const std::string& fileName, int n);
 
 };

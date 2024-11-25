@@ -8,6 +8,8 @@
 #include <optional>
 #include <cstring>
 #include <cerrno>
+#include <sstream>
+#include "outputFileNames.h"
 
 class inputHandler
 {

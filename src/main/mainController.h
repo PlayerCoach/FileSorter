@@ -27,4 +27,8 @@ public:
     void addRandomRecords(int numberOfRecords);
     void addSpecifiedRecords(int numberOfRecords);
     void readInputFile();
+    void parseSortCommand(std::vector<std::string>& tokens);
+    int sortFile();
+    void showFile(std::vector<std::string>& tokens);
+    void clearInputFile();
 };

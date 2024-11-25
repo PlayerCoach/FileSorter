@@ -164,6 +164,11 @@ void fileHandler::flushWriteBuffer(const std::string& fileName) {
 }
 
 void fileHandler::displayFile(const std::string& fileName) {
+    if (!std::filesystem::exists(fileName))
+    {
+        std::cerr << "Error: File does not exist" << std::endl;
+        return;
+    }
     openFileForInput(fileName);
     std::optional<Record> record;
     while ((record = readRecordFromFile(fileName)) != std::nullopt)
@@ -296,3 +301,90 @@ void fileHandler::concatenateFilesInFolder(const std::string& folderPath, const 
 void fileHandler::deleteFolder(const std::string& folderPath) {
     std::filesystem::remove_all(folderPath);
 }
+
+void fileHandler::copyFile(const std::string& source, const std::string& destination) {
+    
+    std::filesystem::path fullOuputPath = std::filesystem::path(OUTPUT_FOLDER) / destination;
+    std::filesystem::copy(source, fullOuputPath);
+}
+
+void fileHandler::convertTxtToInputBin(const std::string& txtFilePath)
+{
+    std::ifstream txtFile(txtFilePath);
+    if (!txtFile.is_open())
+    {
+        std::cerr << "Error: Could not open text file " << txtFilePath << std::endl;
+        return;
+    }
+
+   this->openFileForOutput(INPUT);
+
+    std::string line;
+    while (std::getline(txtFile, line))
+    {
+        std::istringstream numberStream(line);
+        std::vector<int32_t> record;
+        std::string numberString;
+        int32_t number;
+
+        // Parse the numbers in the current line
+        while (std::getline(numberStream, numberString, ' '))
+        {
+            try
+            {
+                number = std::stoi(numberString);
+                record.push_back(number);
+            }
+            catch (const std::exception& e)
+            {
+                std::cerr << "Invalid number in text file: " << numberString << ". Skipping line." << std::endl;
+                record.clear();
+                break;
+            }
+        }
+
+        if (record.empty())
+            continue;
+
+        if (record.size() > MAX_RECORD_COUNT)
+        {
+            std::cerr << "Record too long, skipping line: " << line << std::endl;
+            continue;
+        }
+
+        Record recordObj(record);
+        this->writeRecordToFile(INPUT, recordObj);
+
+    }
+
+    txtFile.close();
+    this->closeFileForOutput(INPUT);
+}
+
+void fileHandler::deleteAllBinFilesExceptInput() {
+    std::filesystem::path targetPath = std::filesystem::absolute(INPUT);
+    for (const auto& entry : std::filesystem::directory_iterator(OUTPUT_FOLDER)) {
+        if (entry.is_regular_file() && std::filesystem::absolute(entry.path()) != targetPath) {
+            std::filesystem::remove(entry.path());
+        }
+    }
+}
+
+void fileHandler::clearFile(const std::string& fileName) {
+    std::ofstream file(fileName, std::ios::trunc);
+    file.close();
+}
+
+void fileHandler::displayNFirstRecords(const std::string& fileName, int n) {
+    openFileForInput(fileName);
+    std::optional<Record> record;
+    for (int i = 0; i < n; i++)
+    {
+        record = readRecordFromFile(fileName);
+        if (record == std::nullopt)
+            break;
+        std::cout << record.value() << std::endl;
+    }
+    finalizeFileForInput(fileName);
+}
+
