@@ -9,6 +9,7 @@
 #include <vector>
 #include <climits>
 #include <random>
+#include <optional>
 class Record
 {
 private:
@@ -16,7 +17,7 @@ private:
     std::set<int32_t> series; // changed here for int 32 hope it wont break anything 
     
     //methods 
-    int getMaxUnique(const Record &other) const;
+    std::optional<int32_t> getMaxUnique(const Record &other) const;
     void sortDescending();
 
 public:

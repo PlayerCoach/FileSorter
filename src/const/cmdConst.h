@@ -22,5 +22,5 @@ const std::string INPUT_FILE_CMD = "input";
     "* " + SORT_CMD + " [ " + EXPLICIT_FLAG + "/" + HIDDEN_FLAG + "] | Sorts file [" + HIDDEN_FLAG + "{"+ FULL_FLAG + "} optional, hides everything ] prints only final result [" + EXPLICIT_FLAG+ "] + {N}(optional - show N first records from every phase) shows file after every phase * \n" 
     "* " + QUIT_CMD + " | Quits the program * \n"
     "* " + HELP_CMD + " | Prints this menu * \n"
-    "* " + SHOW_CMD + " [input] - Shows the input file | + [phase{n}] - shows phase n if existed and is not output | [output] shows output  * \n"
+    "* " + SHOW_CMD + " [input] - Shows the input file | + [phase{n}] - shows phase n if it existed and is not output | [output] shows output  * \n"
     "* " + INPUT_FILE_CMD + " [filename] | Sets the input file * \n";

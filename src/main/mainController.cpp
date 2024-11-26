@@ -2,15 +2,15 @@
 
 mainController::mainController() 
 { 
-     this->filePath  = INPUT;
-    // printMenu();
-    // bool running = true;
-    // while(running)
-    // {
-    //     running = getUserInput();
+    this->filePath  = INPUT;
+    printMenu();
+    bool running = true;
+    while(running)
+    {
+        running = getUserInput();
 
-    // }
-    experiment();
+    }
+    //experiment();// --> run expirement
 
 }
 
@@ -298,11 +298,12 @@ void mainController::parseSortCommand(std::vector<std::string>& tokens)
                 
                 for (int i = 1; i < phases; i++)
                 {
+                    std::cout << "***********PHASE NUMER "<< i << " *************" << std::endl;
                     this->fileHandler.displayNFirstRecords(PHASE_FILE_PATH + std::to_string(i) + ".bin", numberOfRecordsToRead);
-                    std::cout << "***************************************" << std::endl;
+                    
                 }
+                std::cout << "**********MAIN OUTPUT***************" << std::endl;
                 this->fileHandler.displayNFirstRecords(MAIN_OUTPUT, numberOfRecordsToRead);
-                std::cout << "***************************************" << std::endl;
 
             }
             catch(const std::exception& e)
@@ -313,11 +314,11 @@ void mainController::parseSortCommand(std::vector<std::string>& tokens)
         }
         for (int i = 1; i < phases; i++)
         {
+            std::cout << "************PHASE NUMBER "<<i<<" ************" << std::endl;
             this->fileHandler.displayFile(PHASE_FILE_PATH + std::to_string(i) + ".bin");
-            std::cout << "***************************************" << std::endl;
         }
+        std::cout << "*************MAIN OUTPUT**************" << std::endl;
         this->fileHandler.displayFile(MAIN_OUTPUT);
-        std::cout << "***************************************" << std::endl;
     }
     else
     {
@@ -373,7 +374,7 @@ void mainController::experiment()
 {
    std::cout<<"Experiment"<<std::endl;
 
-   for(int i = 10; i<=10000000; i*=10)
+   for(int i = 10; i<=1000000000; i*=10)
    {
        std::cout<<"Number of records: "<<i<<std::endl;
        addRandomRecords(i);

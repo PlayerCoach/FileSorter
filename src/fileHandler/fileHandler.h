@@ -3,6 +3,7 @@
 #include "outputHandler.h"
 #include "const.h"
 #include "record.h"
+#include "outputFileNames.h"
 #include <filesystem>
 #include <iostream>
 #include <fstream>

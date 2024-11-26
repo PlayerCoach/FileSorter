@@ -2,23 +2,21 @@
 
 //private
 
-int Record::getMaxUnique(const Record &other) const
+std::optional<int32_t> Record::getMaxUnique(const Record &other) const
 {
-    int maxUnique = 0;
-    bool isSetMax = false;
+    std::optional<int32_t> maxUnique;
     for (int num : this->series)
     {
         if (other.getSeries().find(num) == other.getSeries().end())
         {
-            if (!isSetMax || num > maxUnique)
+            if (!maxUnique.has_value() ||  num > maxUnique.value())
             {
                 maxUnique = num;
-                isSetMax = true;
             }
         }
     }
 
-    return isSetMax ? maxUnique : INT_MIN; 
+    return maxUnique;
 }
 
 void Record::sortDescending()
@@ -75,39 +73,36 @@ Record& Record::operator=(const Record &record)
 
 bool Record::operator<(const Record &record) const
 {
-    int maxA = this->getMaxUnique(record);
-    int maxB = record.getMaxUnique(*this);
+    std::optional<int> maxA = this->getMaxUnique(record);
+    std::optional<int> maxB = record.getMaxUnique(*this);
 
-       // If both are invalid (INT_MIN), they are considered equal
-    if (maxA == INT_MIN && maxB == INT_MIN)
-        return false;
+    if (!maxA.has_value() && maxB.has_value())
+        return true; // No unique max is less than a valid max
 
-    // INT_MIN is considered smaller than any valid value
-    if (maxA == INT_MIN)
-        return true;
-    if (maxB == INT_MIN)
-        return false;
+    if (maxA.has_value() && !maxB.has_value())
+        return false; // Valid max is greater than no unique max
 
-    return maxA < maxB;
+    if (!maxA.has_value() && !maxB.has_value())
+        return false; // Both have no unique max, considered equal
 
-
+    return maxA.value() < maxB.value(); // Compare actual values
 }
 
 bool Record::operator>(const Record &record) const
 {
-    int maxA = this->getMaxUnique(record);
-    int maxB = record.getMaxUnique(*this);
+    std::optional<int> maxA = this->getMaxUnique(record);
+    std::optional<int> maxB = record.getMaxUnique(*this);
 
-        if (maxA == INT_MIN && maxB == INT_MIN)
-        return false;
+    if (!maxA.has_value() && maxB.has_value())
+        return false; // No unique max is less than a valid max
 
-    // INT_MIN is considered smaller than any valid value
-    if (maxB == INT_MIN)
-        return true;
-    if (maxA == INT_MIN)
-        return false;
+    if (maxA.has_value() && !maxB.has_value())
+        return true; // Valid max is greater than no unique max
 
-    return maxA > maxB;
+    if (!maxA.has_value() && !maxB.has_value())
+        return false; // Both have no unique max, considered equal
+
+    return maxA.value() > maxB.value(); // Compare actual values
 }
 
 bool Record::operator==(const Record &record) const

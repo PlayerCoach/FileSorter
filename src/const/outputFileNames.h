@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+const std::string OUTPUT_FOLDER = "out";
 const std::string OUTPUT_DIR = "out/";
 const std::string INPUT = OUTPUT_DIR + "input.bin";
 const std::string MAIN_OUTPUT = OUTPUT_DIR + "output.bin";

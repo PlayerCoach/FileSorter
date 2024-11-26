@@ -12,10 +12,11 @@
 #include <memory>
 #include <map>
 #include "outputFileNames.h"
+#include "const.h"
 
 class LargeBufferSort : public SortingStrategy {
     private:
-    const int numberOfBuffersToRead = 1001;
+    const int numberOfBuffersToRead = AVAILABLE_BUFFERS;
     std::vector<std::string> tapes;
 
     std::string createNextTape(int tempTapeIndex);
